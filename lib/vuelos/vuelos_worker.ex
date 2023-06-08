@@ -24,10 +24,9 @@ defmodule Vuelos.Worker do
   def handle_call({:get_precio, vuelo_id}, _from, {vuelos, id_seq}) do
     vuelo = Map.get(vuelos, vuelo_id, :none)
 
-    if vuelo do
-      {:reply, vuelo.precio, {vuelos, id_seq}}
-    else
-      {:reply, :none, {vuelos, id_seq}}
+    case vuelo do
+      %{precio: precio} -> {:reply, precio, {vuelos, id_seq}}
+      _ -> {:reply, :none, {vuelos, id_seq}}
     end
   end
 
@@ -43,5 +42,9 @@ defmodule Vuelos.Worker do
 
   def get_all(pid) do
     GenServer.call(pid, :get_all)
+  end
+
+  def validar(_pid, _vuelo_id) do
+    {:reply, :ok}
   end
 end
