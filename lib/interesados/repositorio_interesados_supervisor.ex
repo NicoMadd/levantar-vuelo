@@ -2,7 +2,7 @@ defmodule Interesados.Supervisor do
   use Supervisor
 
   def start_link(init) do
-    Supervisor.start_link(__MODULE__, init)
+    Supervisor.start_link(__MODULE__, init, name: __MODULE__)
   end
 
   def init(_init_arg) do
