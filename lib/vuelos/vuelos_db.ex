@@ -8,9 +8,17 @@ defmodule Vuelos.DB do
   # Client
 
   def agregar_vuelo(tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite) do
+    # Crea el vuelo
     vuelo = vuelo(tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite)
+
+    # Genera un id para el vuelo creado
     id = App.Utils.generate_id()
+
+    # Agrega el vuelo
     Agent.update(__MODULE__, fn vuelos -> Map.put(vuelos, id, vuelo) end)
+
+    # Envia un cast para avisar al alertas worker de nuevo vuelo agregado
+    Alertas.Notifier.notificacion_vuelo(:alertas_worker, {id, vuelo})
   end
 
   def get_all do

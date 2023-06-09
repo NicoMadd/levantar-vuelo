@@ -6,42 +6,41 @@ defmodule Vuelos.Worker do
   end
 
   def init(_init_arg) do
-    {:ok, {%{}, 1}}
+    {:ok, []}
   end
 
   # Handles
 
-  def handle_call({:publicar, {precio, aerolinea}}, _, {vuelos, id_seq}) do
-    vuelo = %{precio: precio, aerolinea: aerolinea}
-    newVuelos = Map.put(vuelos, id_seq, vuelo)
-    {:reply, newVuelos, {newVuelos, id_seq + 1}}
+  def handle_call(
+        {:publicar, {tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}},
+        _,
+        state
+      ) do
+    ## Agrega el vuelo al agent
+    ## Es sicronico ya que debo asegurar que se haya agregado el vuelo antes de responder.
+    Vuelos.DB.agregar_vuelo(
+      tipo_avion,
+      cantidad_asientos,
+      datetime,
+      origen,
+      destino,
+      tiempo_limite
+    )
+
+    {:reply, :ok, state}
   end
 
-  def handle_call(:get_all, _from, vuelos) do
-    {:reply, vuelos, vuelos}
-  end
-
-  def handle_call({:get_precio, vuelo_id}, _from, {vuelos, id_seq}) do
-    vuelo = Map.get(vuelos, vuelo_id, :none)
-
-    case vuelo do
-      %{precio: precio} -> {:reply, precio, {vuelos, id_seq}}
-      _ -> {:reply, :none, {vuelos, id_seq}}
-    end
+  def handle_call(:get_all, _from, state) do
+    {:reply, state, state}
   end
 
   # Funciones definidas para el cliente
 
-  def publicar(pid, precio, aerolinea) do
-    GenServer.call(pid, {:publicar, {precio, aerolinea}})
-  end
-
-  def get_precio(pid, vuelo_id) do
-    GenServer.call(pid, {:get_precio, vuelo_id})
-  end
-
-  def get_all(pid) do
-    GenServer.call(pid, :get_all)
+  def publicar(pid, tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite) do
+    GenServer.call(
+      pid,
+      {:publicar, {tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}}
+    )
   end
 
   def validar(_pid, _vuelo_id) do
