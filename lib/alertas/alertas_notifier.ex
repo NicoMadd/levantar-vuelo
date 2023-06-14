@@ -9,12 +9,16 @@ defmodule Alertas.Notifier do
     {:ok, []}
   end
 
+  # Notificacion de un nuevo vuelo
   def notificacion_vuelo(_pid, info_vuelo) do
     {_vuelo_id, vuelo} = info_vuelo
 
-    # Busca el mes
+    # Busca informacion para posibles alertas
     {_, _, fecha, _origen, _destino, _} = vuelo
     %{month: mes} = fecha
-    IO.puts(mes)
+
+    # Buscar alertas que coincidan con los datos suministrados del vuelo
+
+    # Informar a los usuarios
   end
 end

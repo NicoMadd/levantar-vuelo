@@ -41,4 +41,8 @@ defmodule Alertas.Worker do
   # end
 
   # Funciones definidas para el cliente
+
+  def crear_alerta_por_mes(_pid, usuario_id, mes) do
+    Alertas.DB.crear_alerta_por_mes(usuario_id, mes)
+  end
 end

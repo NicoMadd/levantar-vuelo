@@ -24,6 +24,22 @@ defmodule Reservas.Worker do
     end
   end
 
+  def seleccionar_asientos(pid, reserva_id, asientos) do
+    # validar seleccion de asientos
+    # si falla o devuelve error o asincronicamente informa que se debe seleccionar asientos de nuevo
+    # si es valida entonces confirma la compra del pasaje
+  end
+
+  # La reserva se puede cancelar ya sea por el propio usuario o por el cierre del vuelo
+  def cancelar_reserva(pid, reserva_id, usuario_id) do
+    # Cancelar reserva en la base
+    Reservas.DB.cancelar(reserva_id)
+
+    # Notificar al usuario de la cancelacion
+  end
+
+  ## ----- Private functions --------------------------------
+
   defp vueloDisponible?(vuelo_id) do
     case Vuelos.Worker.validar(:vuelos_worker, vuelo_id) do
       {:reply, :ok} ->
