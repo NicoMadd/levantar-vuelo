@@ -1,0 +1,38 @@
+@startuml Secuencia Creacion de alertas
+actor Usuario
+participant Usuario.Interface.Worker
+participant Alertas.Worker
+database Alertas.DB
+
+== Alerta por mes == 
+
+Usuario -> Usuario.Interface.Worker: Crear alerta por mes \n mes
+Usuario.Interface.Worker -> Alertas.Worker: Crear alerta por mes \n mes + usuario
+Alertas.Worker -> Alertas.DB: Crear alerta por mes \n mes + usuario
+Alertas.Worker <-- Alertas.DB: Alerta Creada
+Usuario.Interface.Worker <-- Alertas.Worker: Alerta Creada
+Usuario <-- Usuario.Interface.Worker: Alerta Creada\n OK
+
+== Alerta por destino == 
+
+Usuario -> Usuario.Interface.Worker: Crear alerta por destino \n destino
+Usuario.Interface.Worker -> Alertas.Worker: Crear alerta por destino \n destino + usuario
+Alertas.Worker -> Alertas.DB: Crear alerta por destino \n destino + usuario
+Alertas.Worker <-- Alertas.DB: Alerta Creada
+Usuario.Interface.Worker <-- Alertas.Worker: Alerta Creada
+Usuario <-- Usuario.Interface.Worker: Alerta Creada\n OK
+
+== Alerta por origen == 
+
+Usuario -> Usuario.Interface.Worker: Crear alerta por origen \n origen
+Usuario.Interface.Worker -> Alertas.Worker: Crear alerta por origen \n origen + usuario
+Alertas.Worker -> Alertas.DB: Crear alerta por origen \n origen + usuario
+Alertas.Worker <-- Alertas.DB: Alerta Creada
+Usuario.Interface.Worker <-- Alertas.Worker: Alerta Creada
+Usuario <-- Usuario.Interface.Worker: Alerta Creada\n OK
+
+
+
+
+
+@enduml
