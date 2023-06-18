@@ -9,6 +9,8 @@ database Reservas.DB
 
 Usuario -> Usuario.Interface.Worker: Iniciar reserva de un vuelo
 Usuario.Interface.Worker -> Reservas.Worker: Iniciar reserva \n usuario + vuelo
+Reservas.Worker -> Vuelos.Worker: Validar vuelo \n vuelo
+Reservas.Worker <-- Vuelos.Worker: Vuelo valido
 Reservas.Worker -> Reservas.DB: Crear reserva inicial \n usuario + vuelo
 Reservas.Worker <-- Reservas.DB: ID Reserva
 Reservas.Worker --> Usuario.Interface.Worker: ID Reserva
