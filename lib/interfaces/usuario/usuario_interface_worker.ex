@@ -2,12 +2,14 @@ defmodule Usuario.Interface.Worker do
   use GenServer
   require Logger
 
-  def start_link(init) do
-    GenServer.start_link(__MODULE__, init, name: :usuario_interface_worker)
+  @registry Usuario.Interface.Worker.Registry
+
+  def start_link(usuario_id) do
+    GenServer.start_link(__MODULE__, :ok, name: {:via, Registry, {@registry, usuario_id}})
   end
 
-  def init(_init_arg) do
-    {:ok, []}
+  def init(:ok) do
+    {:ok, %{vuelos: []}}
   end
 
   def notificar_nuevo_vuelo(usuario_id, vuelo_id) do

@@ -2,19 +2,28 @@ defmodule Aerolinea.Interface.Worker do
   use GenServer
   require Logger
 
-  def start_link(init) do
-    GenServer.start_link(__MODULE__, init, name: :aerolinea_interface_worker)
+  @registry Aerolinea.Interface.Worker.Registry
+
+  def start_link(aerolinea_id) do
+    GenServer.start_link(__MODULE__, {:ok, aerolinea_id},
+      name: {:via, Registry, {@registry, aerolinea_id}}
+    )
   end
 
-  def init(_init_arg) do
-    {:ok, []}
+  def init({:ok, aerolinea_id}) do
+    {:ok, {aerolinea_id}}
   end
 
-  def publicar_vuelo() do
-    Logger.info("Usuario publica vuelo")
+  # Handles
+
+  def handle_call({:publicar_vuelo}, _from, {aerolinea_id}) do
+    vuelo_worker_name = get_worker_name(aerolinea_id)
+    Vuelos.DynamicSupervisor.start_child(vuelo_worker_name)
+
+    Logger.info("Aerolinea #{aerolinea_id} publica vuelo")
 
     Vuelos.Worker.publicar_vuelo(
-      :vuelos_worker,
+      {:name, vuelo_worker_name},
       "Boeing",
       10,
       ~U[2023-06-18 00:00:00Z],
@@ -22,6 +31,12 @@ defmodule Aerolinea.Interface.Worker do
       "Montevideo",
       3
     )
+  end
+
+  # Cliente
+
+  def publicar_vuelo(pid) do
+    GenServer.call()
   end
 
   def publicar_vuelo_largo() do
@@ -36,5 +51,11 @@ defmodule Aerolinea.Interface.Worker do
       "Montevideo",
       500
     )
+  end
+
+  # Private functions
+
+  defp get_worker_name(aerolinea_id) do
+    to_string(aerolinea_id) <> "_vuelo_worker"
   end
 end

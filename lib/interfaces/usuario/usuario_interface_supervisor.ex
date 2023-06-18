@@ -6,7 +6,11 @@ defmodule Usuario.Interface.Supervisor do
   end
 
   def init(_init_arg) do
-    children = [Usuario.Interface.Worker]
+    children = [
+      {Registry, [keys: :unique, name: Usuario.Interface.Worker.Registry]},
+      {Usuario.Interface.Worker, :usuario_interface_worker}
+    ]
+
     opts = [strategy: :one_for_one]
 
     Supervisor.init(children, opts)
