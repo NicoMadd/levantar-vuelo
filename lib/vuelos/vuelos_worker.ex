@@ -36,7 +36,15 @@ defmodule Vuelos.Worker do
 
   # Funciones definidas para el cliente
 
-  def publicar(pid, tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite) do
+  @doc """
+  tipo_avion: string
+  cantidad_asientos: number
+  datetime: ~UTC datetime
+  origen: string
+  destino: string
+  tiempo_limite: number: en segundos
+  """
+  def publicar_vuelo(pid, tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite) do
     GenServer.call(
       pid,
       {:publicar, {tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}}

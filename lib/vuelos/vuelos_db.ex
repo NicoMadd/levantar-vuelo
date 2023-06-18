@@ -1,7 +1,7 @@
 defmodule Vuelos.DB do
   use Agent
 
-  def start_link(initial_value) do
+  def start_link(_initial_value) do
     Agent.start_link(fn -> %{} end, name: __MODULE__)
   end
 
@@ -19,6 +19,7 @@ defmodule Vuelos.DB do
 
     # Envia un cast para avisar al alertas worker de nuevo vuelo agregado
     Alertas.Notifier.notificacion_vuelo(:alertas_worker, {id, vuelo})
+    {:reply, :ok}
   end
 
   def get_all do
