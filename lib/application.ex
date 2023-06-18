@@ -5,7 +5,6 @@ defmodule LevantarVuelo.Application do
     IO.puts("Arranca")
 
     children = [
-      Interesados.Supervisor,
       Vuelos.Supervisor,
       Reservas.Supervisor,
       Alertas.Supervisor,
