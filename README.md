@@ -12,7 +12,7 @@
 ## Arquitectura
 
 ![Alt text](./diagrama_arquitectura.png)
-<img src="./diagrama_arquitectura.png">
+<img src="./diagrams/diagrama_arquitectura.png">
 
 ## Documentacion
 
