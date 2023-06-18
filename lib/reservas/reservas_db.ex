@@ -33,4 +33,10 @@ defmodule Reservas.DB do
   def get_all do
     Agent.get(__MODULE__, fn s -> s end)
   end
+
+  def get_usuarios_by_vuelo(vuelo_id) do
+    Agent.get(__MODULE__, fn s -> s end)
+    |> Enum.filter(fn {_, {vuelo, _}} -> vuelo == vuelo_id end)
+    |> Enum.map(fn {_, {_, usuario}} -> usuario end)
+  end
 end
