@@ -88,12 +88,16 @@ defmodule Vuelos.Worker do
         destino,
         tiempo_limite
       ) do
-    {pid, _} = Registry.lookup(Vuelos.Worker.Registry, name)
+    case Registry.lookup(Vuelos.Worker.Registry, name) do
+      [{pid, _}] ->
+        GenServer.call(
+          pid,
+          {:publicar, {tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}}
+        )
 
-    GenServer.call(
-      pid,
-      {:publicar, {tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}}
-    )
+      _ ->
+        {:none}
+    end
   end
 
   @doc """
