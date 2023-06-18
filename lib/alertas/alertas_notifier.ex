@@ -19,6 +19,8 @@ defmodule Alertas.Notifier do
 
     # Informar a los usuarios
 
+    IO.inspect(info_vuelo)
+
     notificar_por_mes(info_vuelo, alertas)
 
     notificar_por_origen(info_vuelo, alertas)
@@ -38,14 +40,19 @@ defmodule Alertas.Notifier do
 
     usuarios_a_alertar = Map.get(alertas, mes)
 
-    mensaje =
-      "Notificando a " <> "#{length(usuarios_a_alertar)}" <> " usuarios para el mes: " <> "#{mes}"
+    if(usuarios_a_alertar == nil) do
+      Logger.info("No hay alertas de mes configuradas")
+    else
+      mensaje =
+        "Notificando a " <>
+          "#{length(usuarios_a_alertar)}" <> " usuarios para el mes: " <> "#{mes}"
 
-    notificar_usuarios(
-      usuarios_a_alertar,
-      vuelo_id,
-      mensaje
-    )
+      notificar_usuarios(
+        usuarios_a_alertar,
+        vuelo_id,
+        mensaje
+      )
+    end
   end
 
   defp notificar_por_origen({vuelo_id, vuelo}, alertas) do
@@ -53,15 +60,19 @@ defmodule Alertas.Notifier do
 
     usuarios_a_alertar = Map.get(alertas, origen)
 
-    mensaje =
-      "Notificando a " <>
-        "#{length(usuarios_a_alertar)}" <> " usuarios para el origen: " <> "#{origen}"
+    if(usuarios_a_alertar == nil) do
+      Logger.info("No hay alertas de origen configuradas")
+    else
+      mensaje =
+        "Notificando a " <>
+          "#{length(usuarios_a_alertar)}" <> " usuarios para el origen: " <> "#{origen}"
 
-    notificar_usuarios(
-      usuarios_a_alertar,
-      vuelo_id,
-      mensaje
-    )
+      notificar_usuarios(
+        usuarios_a_alertar,
+        vuelo_id,
+        mensaje
+      )
+    end
   end
 
   defp notificar_por_destino({vuelo_id, vuelo}, alertas) do
@@ -69,15 +80,19 @@ defmodule Alertas.Notifier do
 
     usuarios_a_alertar = Map.get(alertas, destino)
 
-    mensaje =
-      "Notificando a " <>
-        "#{length(usuarios_a_alertar)}" <> " usuarios para el destino: " <> "#{destino}"
+    if(usuarios_a_alertar == nil) do
+      Logger.info("No hay alertas de destino configuradas")
+    else
+      mensaje =
+        "Notificando a " <>
+          "#{length(usuarios_a_alertar)}" <> " usuarios para el destino: " <> "#{destino}"
 
-    notificar_usuarios(
-      usuarios_a_alertar,
-      vuelo_id,
-      mensaje
-    )
+      notificar_usuarios(
+        usuarios_a_alertar,
+        vuelo_id,
+        mensaje
+      )
+    end
   end
 
   defp notificar_usuarios(usuarios, vuelo_id, mensaje) do
