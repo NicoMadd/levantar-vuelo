@@ -1,5 +1,6 @@
 defmodule Vuelos.Worker do
   use GenServer
+  require Logger
 
   def start_link(init) do
     GenServer.start_link(__MODULE__, init, name: :vuelos_worker)
@@ -11,11 +12,22 @@ defmodule Vuelos.Worker do
 
   # Handles
 
+  def handle_info({:cerrar_vuelo, id}, state) do
+    Logger.info("Cerrando vuelo: " <> id)
+    {:noreply, state}
+  end
+
   def handle_call(
         {:publicar, {tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}},
         _,
         state
       ) do
+    Logger.info("Publicando vuelo")
+
+    Logger.info(
+      "#{tipo_avion} #{cantidad_asientos} #{datetime} #{origen} #{destino} #{tiempo_limite}"
+    )
+
     ## Agrega el vuelo al agent
     ## Es sicronico ya que debo asegurar que se haya agregado el vuelo antes de responder.
     Vuelos.DB.agregar_vuelo(
