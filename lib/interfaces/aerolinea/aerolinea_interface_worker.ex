@@ -1,5 +1,6 @@
 defmodule Aerolinea.Interface.Worker do
   use GenServer
+  require Logger
 
   def start_link(init) do
     GenServer.start_link(__MODULE__, init, name: :aerolinea_interface_worker)
@@ -10,6 +11,8 @@ defmodule Aerolinea.Interface.Worker do
   end
 
   def publicar_vuelo() do
+    Logger.info("Usuario publica vuelo")
+
     Vuelos.Worker.publicar_vuelo(
       :vuelos_worker,
       "Boeing",
@@ -17,7 +20,7 @@ defmodule Aerolinea.Interface.Worker do
       ~U[2023-06-18 00:00:00Z],
       "Buenos Aires",
       "Montevideo",
-      60
+      5
     )
   end
 end
