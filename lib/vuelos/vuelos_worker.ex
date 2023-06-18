@@ -13,7 +13,7 @@ defmodule Vuelos.Worker do
   # Handles
 
   def handle_info({:cerrar_vuelo, id}, state) do
-    Logger.info("Cerrando vuelo: " <> id)
+    Vuelos.DB.cerrar_vuelo(id)
     {:noreply, state}
   end
 
@@ -24,8 +24,9 @@ defmodule Vuelos.Worker do
     # validacion interna
     case _validar_asientos(vuelo, asientos) do
       {:ok, message} ->
-        status = _asignar_asientos(vuelo_id, asientos)
-        {:reply, status, state}
+        Logger.info(message)
+        response = _asignar_asientos(vuelo_id, asientos)
+        {:reply, response, state}
 
       {:error, message} ->
         {:reply, {:error, message}, state}
@@ -97,8 +98,6 @@ defmodule Vuelos.Worker do
   defp _validar_asientos(vuelo, asientos_a_ocupar) do
     {{_, cantidad_asientos_disponibles, _, _, _, _}, cantidad_asientos_ocupados} = vuelo
 
-    IO.puts("#{cantidad_asientos_disponibles} #{cantidad_asientos_ocupados}")
-
     if(cantidad_asientos_ocupados + asientos_a_ocupar <= cantidad_asientos_disponibles) do
       {:ok, "Los asientos a asignar estan disponibles"}
     else
@@ -107,7 +106,7 @@ defmodule Vuelos.Worker do
   end
 
   defp _asignar_asientos(vuelo_id, asientos) do
-    {:reply, status} = Vuelos.DB.asignar_asientos(vuelo_id, asientos)
-    status
+    {:reply, response} = Vuelos.DB.asignar_asientos(vuelo_id, asientos)
+    {:ok, response}
   end
 end

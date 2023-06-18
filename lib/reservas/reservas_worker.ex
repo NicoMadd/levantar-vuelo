@@ -12,9 +12,18 @@ defmodule Reservas.Worker do
 
   # Handles
 
-  # def handle_cast({:cierre_de_vuelo, {id}}, _state) do
-  #   Logger.info("Cierre del vuelo: " <> id)
-  # end
+  def handle_cast({:cierre_de_vuelo, vuelo_id}, state) do
+    Logger.info("Cerrando reservas del vuelo #{vuelo_id}")
+
+    Reservas.DB.get_usuarios_by_vuelo(vuelo_id)
+    |> Enum.each(fn usuario ->
+      Usuario.Interface.Worker.notificar_cierre_vuelo(usuario, vuelo_id)
+    end)
+
+    Logger.info("Reservas del vuelo #{vuelo_id} cerradas")
+
+    {:noreply, :ok}
+  end
 
   def handle_call({:reservar_asientos, {reserva_id, asientos}}, _, state) do
     reserva = Reservas.DB.get(reserva_id)
@@ -44,28 +53,14 @@ defmodule Reservas.Worker do
     GenServer.call(pid, {:reservar_asientos, {reserva_id, asientos}})
   end
 
-  def seleccionar_asientos(pid, reserva_id, asientos) do
-    # validar seleccion de asientos
-    # si falla o devuelve error o asincronicamente informa que se debe seleccionar asientos de nuevo
-    # si es valida entonces confirma la compra del pasaje
-  end
-
-  # La reserva se puede cancelar ya sea por el propio usuario o por el cierre del vuelo
-  def cancelar_reserva(pid, reserva_id, usuario_id) do
-    # Cancelar reserva en la base
-    Reservas.DB.cancelar(reserva_id)
-
-    # Notificar al usuario de la cancelacion
-  end
-
-  def notificacion_cierre_de_vuelo(pid, id) do
-    GenServer.cast(pid, {:cierre_de_vuelo, {id}})
+  def notificacion_cierre_de_vuelo(pid, vuelo_id) do
+    GenServer.cast(pid, {:cierre_de_vuelo, vuelo_id})
   end
 
   ## ----- Private functions --------------------------------
 
   defp _reservar_asientos(nil, _, state) do
-    {:reply, {:ok, "No existe la reserva"}, state}
+    {:reply, {:none, "No existe la reserva"}, state}
   end
 
   defp _reservar_asientos(reserva, asientos, state) do
@@ -76,9 +71,9 @@ defmodule Reservas.Worker do
     end
 
     # asignar asientos
-    asignar_asientos(vuelo_id, asientos)
+    {response, message} = asignar_asientos(vuelo_id, asientos)
 
-    {:reply, :ok, state}
+    {:reply, {response, message}, state}
   end
 
   defp vuelo_disponible?(vuelo_id) do

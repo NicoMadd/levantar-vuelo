@@ -11,7 +11,7 @@ defmodule Vuelos.DB do
     Agent.update(__MODULE__, fn vuelos -> Map.delete(vuelos, id) end)
 
     # Notifico del cierre
-    Reservas.Worker.notificacion_cierre_de_vuelo(:alertas_worker, {id})
+    Reservas.Worker.notificacion_cierre_de_vuelo(:reservas_worker, id)
   end
 
   # Client
@@ -39,17 +39,21 @@ defmodule Vuelos.DB do
 
   def asignar_asientos(_vuelo_id, 0) do
     Logger.error("Debe asignar al menos un asiento")
-    {:reply, :error}
+    {:reply, {:error, "Debe asignar al menos un asiento"}}
   end
 
   def asignar_asientos(vuelo_id, asientos) do
     Logger.info("Asignando #{asientos} asientos al vuelo con id: #{vuelo_id}")
 
+    # Asignar asientos
     Agent.update(__MODULE__, fn vuelos ->
       Map.update(vuelos, vuelo_id, nil, fn {vuelo, asientos_actuales} ->
         {vuelo, asientos_actuales + asientos}
       end)
     end)
+
+    # evaluar si se debe cerrar el vuelo
+    _evaluar_cierre_vuelo(vuelo_id, asientos)
 
     {:reply, :ok}
   end
@@ -80,5 +84,14 @@ defmodule Vuelos.DB do
         "#{tiempo_limite}" <>
         " segundos."
     )
+  end
+
+  defp _evaluar_cierre_vuelo(vuelo_id, asientos_finales) do
+    {_, cantidad_asientos_disponibles, _, _, _, _} = Vuelos.DB.get(vuelo_id)
+
+    if(cantidad_asientos_disponibles >= asientos_finales) do
+      Logger.info("El vuelo #{vuelo_id} llego al maximo de asientos.")
+      cerrar_vuelo(vuelo_id)
+    end
   end
 end
