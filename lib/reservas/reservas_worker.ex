@@ -7,26 +7,41 @@ defmodule Reservas.Worker do
   end
 
   def init(_init_arg) do
-    {:ok, {%{}, 1}}
+    {:ok, %{}}
   end
 
   # Handles
 
-  def handle_cast({:cierre_de_vuelo, {id}}, _state) do
-    Logger.info("Cierre del vuelo: " <> id)
+  # def handle_cast({:cierre_de_vuelo, {id}}, _state) do
+  #   Logger.info("Cierre del vuelo: " <> id)
+  # end
+
+  def handle_call({:reservar_asientos, {reserva_id, asientos}}, _, state) do
+    reserva = Reservas.DB.get(reserva_id)
+
+    _reservar_asientos(reserva, asientos, state)
   end
 
-  def handle_call({:reservar, {vuelo_id, usuario_id}}, _, {vuelos, id_seq}) do
-    {:reply, :ok, {vuelos, id_seq}}
+  def handle_call({:iniciar_reserva, {vuelo_id, usuario_id}}, _from, state) do
+    # validar inicio de reserva contra el vuelo
+    if vuelo_disponible?(vuelo_id) do
+    end
+
+    Logger.info("Iniciando reserva con id: 123 para el usuario: #{usuario_id} vuelo: #{vuelo_id}")
+
+    reserva_id = Reservas.DB.crear_reserva(vuelo_id, usuario_id)
+
+    {:reply, {:ok, reserva_id}, state}
   end
 
   # Funciones definidas para el cliente
 
-  def reservar(pid, vuelo_id, usuario_id) do
-    # validar inicio de reserva contra el vuelo
-    if vueloDisponible?(vuelo_id) do
-      GenServer.call(pid, {:reservar, {vuelo_id, usuario_id}})
-    end
+  def iniciar_reserva(pid, vuelo_id, usuario_id) do
+    GenServer.call(pid, {:iniciar_reserva, {vuelo_id, usuario_id}})
+  end
+
+  def reservar_asientos(pid, reserva_id, asientos) do
+    GenServer.call(pid, {:reservar_asientos, {reserva_id, asientos}})
   end
 
   def seleccionar_asientos(pid, reserva_id, asientos) do
@@ -49,13 +64,34 @@ defmodule Reservas.Worker do
 
   ## ----- Private functions --------------------------------
 
-  defp vueloDisponible?(vuelo_id) do
-    case Vuelos.Worker.validar(:vuelos_worker, vuelo_id) do
+  defp _reservar_asientos(nil, _, state) do
+    {:reply, {:ok, "No existe la reserva"}, state}
+  end
+
+  defp _reservar_asientos(reserva, asientos, state) do
+    {vuelo_id, usuario_id} = reserva
+
+    # validar inicio de reserva contra el vuelo
+    if vuelo_disponible?(vuelo_id) do
+    end
+
+    # asignar asientos
+    asignar_asientos(vuelo_id, asientos)
+
+    {:reply, :ok, state}
+  end
+
+  defp vuelo_disponible?(vuelo_id) do
+    case Vuelos.Worker.validar_vuelo(:vuelos_worker, vuelo_id) do
       {:reply, :ok} ->
         true
 
       _ ->
         false
     end
+  end
+
+  defp asignar_asientos(vuelo_id, asientos) do
+    Vuelos.Worker.asignar_asientos(:vuelos_worker, vuelo_id, asientos)
   end
 end
