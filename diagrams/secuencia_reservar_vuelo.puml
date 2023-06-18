@@ -18,7 +18,7 @@ Usuario.Interface.Worker --> Usuario: Reserva iniciada
 newpage
 
 Usuario -> Usuario.Interface.Worker: Reservar vuelo \n reserva_id + asientos
-Usuario.Interface.Worker -> Reservas.Worker: Publicar vuelo \n reserva_id + asientos
+Usuario.Interface.Worker -> Reservas.Worker: Reservar vuelo \n reserva_id + asientos
 activate Reservas.Worker 
 Reservas.Worker -> Vuelos.Worker: Validar vuelo \n vuelo
 Reservas.Worker <-- Vuelos.Worker: Vuelo valido
