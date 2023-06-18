@@ -12,7 +12,10 @@ participant Usuario.Interface.Worker
 == Al agregar un nuevo vuelo ==
 Vuelos.Worker -> Vuelos.DB: Agregar vuelo
 activate Vuelos.DB
-Vuelos.DB -> Vuelos.DB: send_after(cerrar_vuelo,vuelo,tiempo de oferta)
+Vuelos.DB -> Vuelos.Worker: send_after(cerrar_vuelo,vuelo,tiempo de oferta)
+deactivate Vuelos.DB
+Vuelos.Worker ->> Vuelos.DB: Cerrar vuelo
+
 deactivate Vuelos.DB
 == Al asignar asientos a un vuelo ==
 Vuelos.Worker -> Vuelos.DB: Asignar asientos \n vuelo + asientos
