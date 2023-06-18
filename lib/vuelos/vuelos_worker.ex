@@ -79,6 +79,23 @@ defmodule Vuelos.Worker do
 
   # Funciones definidas para el cliente
 
+  def publicar_vuelo(
+        {:name, name},
+        tipo_avion,
+        cantidad_asientos,
+        datetime,
+        origen,
+        destino,
+        tiempo_limite
+      ) do
+    {pid, _} = Registry.lookup(Vuelos.Worker.Registry, name)
+
+    GenServer.call(
+      pid,
+      {:publicar, {tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}}
+    )
+  end
+
   @doc """
   tipo_avion: string
   cantidad_asientos: number
