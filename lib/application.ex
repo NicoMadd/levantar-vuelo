@@ -8,7 +8,9 @@ defmodule LevantarVuelo.Application do
       Interesados.Supervisor,
       Vuelos.Supervisor,
       Reservas.Supervisor,
-      Alertas.Supervisor
+      Alertas.Supervisor,
+      Aerolinea.Interface.Supervisor,
+      Usuario.Interface.Supervisor
     ]
 
     opts = [strategy: :one_for_one]
