@@ -17,6 +17,12 @@ defmodule Vuelos.Worker do
     {:noreply, state}
   end
 
+  def handle_call({:validar_vuelo, vuelo_id}, _, state) do
+    vuelo = Vuelos.DB.get(vuelo_id)
+    response = _validar_vuelo(vuelo)
+    {:reply, response, state}
+  end
+
   def handle_call({:asignar_asientos, {vuelo_id, asientos}}, _, state) do
     # fetch del vuelo
     vuelo = Vuelos.DB.get(vuelo_id)
@@ -78,8 +84,8 @@ defmodule Vuelos.Worker do
     )
   end
 
-  def validar_vuelo(_pid, _vuelo_id) do
-    {:reply, :ok}
+  def validar_vuelo(pid, vuelo_id) do
+    GenServer.call(pid, {:validar_vuelo, vuelo_id})
   end
 
   def asignar_asientos(pid, vuelo_id, asientos) do
@@ -90,6 +96,14 @@ defmodule Vuelos.Worker do
   end
 
   # Private functions
+
+  defp _validar_vuelo(nil) do
+    :none
+  end
+
+  defp _validar_vuelo(_vuelo) do
+    :ok
+  end
 
   defp _validar_asientos(nil, _asientos) do
     {:none, "No existe el vuelo"}

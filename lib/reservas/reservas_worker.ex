@@ -22,7 +22,7 @@ defmodule Reservas.Worker do
 
     Logger.info("Reservas del vuelo #{vuelo_id} cerradas")
 
-    {:noreply, :ok}
+    {:noreply, state}
   end
 
   def handle_call({:reservar_asientos, {reserva_id, asientos}}, _, state) do
