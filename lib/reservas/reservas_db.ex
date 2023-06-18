@@ -22,10 +22,6 @@ defmodule Reservas.DB do
     reserva_id
   end
 
-  # Dada una reserva la cancela. Considerar si debe ser baja logica o baja definitiva.
-  def cancelar_reserva(reserva_id, usuario_id) do
-  end
-
   def get(reserva_id) do
     Agent.get(__MODULE__, fn reservas -> Map.get(reservas, reserva_id) end)
   end
