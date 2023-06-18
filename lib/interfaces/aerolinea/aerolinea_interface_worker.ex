@@ -20,7 +20,21 @@ defmodule Aerolinea.Interface.Worker do
       ~U[2023-06-18 00:00:00Z],
       "Buenos Aires",
       "Montevideo",
-      5
+      3
+    )
+  end
+
+  def publicar_vuelo_largo() do
+    Logger.info("Usuario publica vuelo")
+
+    Vuelos.Worker.publicar_vuelo(
+      :vuelos_worker,
+      "Boeing",
+      10,
+      ~U[2023-06-18 00:00:00Z],
+      "Buenos Aires",
+      "Montevideo",
+      500
     )
   end
 end
