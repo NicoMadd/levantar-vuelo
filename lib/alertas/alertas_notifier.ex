@@ -12,8 +12,7 @@ defmodule Alertas.Notifier do
 
   # Notificacion de un nuevo vuelo
   def notificacion_vuelo(_pid, info_vuelo) do
-    {vuelo_id, _vuelo} = info_vuelo
-    Logger.info("Nuevo vuelo " <> vuelo_id <> " notificado")
+    loggear_nuevo_vuelo(info_vuelo)
 
     # Fetch de alertas - Buscar alertas que coincidan con los datos suministrados del vuelo
     alertas = Alertas.DB.get_all()
@@ -29,55 +28,62 @@ defmodule Alertas.Notifier do
 
   # Private functions
 
-  defp notificar_por_mes(info_vuelo, alertas) do
-    {vuelo_id, vuelo} = info_vuelo
+  defp loggear_nuevo_vuelo({vuelo_id, _vuelo}) do
+    Logger.info("Nuevo vuelo " <> vuelo_id <> " notificado")
+  end
+
+  defp notificar_por_mes({vuelo_id, vuelo}, alertas) do
     {_, _, fecha, _origen, _destino, _} = vuelo
     mes = fecha.month
-    IO.inspect(alertas)
 
     usuarios_a_alertar = Map.get(alertas, mes)
 
-    Logger.info(
+    mensaje =
       "Notificando a " <> "#{length(usuarios_a_alertar)}" <> " usuarios para el mes: " <> "#{mes}"
-    )
 
-    Enum.each(usuarios_a_alertar, fn id ->
-      Usuario.Interface.Worker.notificar_nuevo_vuelo(id, vuelo_id)
-    end)
+    notificar_usuarios(
+      usuarios_a_alertar,
+      vuelo_id,
+      mensaje
+    )
   end
 
-  defp notificar_por_origen(info_vuelo, alertas) do
-    {vuelo_id, vuelo} = info_vuelo
+  defp notificar_por_origen({vuelo_id, vuelo}, alertas) do
     {_, _, _fecha, origen, _destino, _} = vuelo
-
-    IO.inspect(alertas)
 
     usuarios_a_alertar = Map.get(alertas, origen)
 
-    Logger.info(
+    mensaje =
       "Notificando a " <>
         "#{length(usuarios_a_alertar)}" <> " usuarios para el origen: " <> "#{origen}"
-    )
 
-    Enum.each(usuarios_a_alertar, fn id ->
-      Usuario.Interface.Worker.notificar_nuevo_vuelo(id, vuelo_id)
-    end)
+    notificar_usuarios(
+      usuarios_a_alertar,
+      vuelo_id,
+      mensaje
+    )
   end
 
-  defp notificar_por_destino(info_vuelo, alertas) do
-    {vuelo_id, vuelo} = info_vuelo
+  defp notificar_por_destino({vuelo_id, vuelo}, alertas) do
     {_, _, _fecha, _origen, destino, _} = vuelo
-
-    IO.inspect(alertas)
 
     usuarios_a_alertar = Map.get(alertas, destino)
 
-    Logger.info(
+    mensaje =
       "Notificando a " <>
         "#{length(usuarios_a_alertar)}" <> " usuarios para el destino: " <> "#{destino}"
-    )
 
-    Enum.each(usuarios_a_alertar, fn id ->
+    notificar_usuarios(
+      usuarios_a_alertar,
+      vuelo_id,
+      mensaje
+    )
+  end
+
+  defp notificar_usuarios(usuarios, vuelo_id, mensaje) do
+    Logger.info(mensaje)
+
+    Enum.each(usuarios, fn id ->
       Usuario.Interface.Worker.notificar_nuevo_vuelo(id, vuelo_id)
     end)
   end
