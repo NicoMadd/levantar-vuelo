@@ -1,5 +1,6 @@
 defmodule Reservas.Worker do
   use GenServer
+  require Logger
 
   def start_link(init) do
     GenServer.start_link(__MODULE__, init, name: :reservas_worker)
@@ -10,6 +11,10 @@ defmodule Reservas.Worker do
   end
 
   # Handles
+
+  def handle_cast({:cierre_de_vuelo, {id}}, _state) do
+    Logger.info("Cierre del vuelo: " <> id)
+  end
 
   def handle_call({:reservar, {vuelo_id, usuario_id}}, _, {vuelos, id_seq}) do
     {:reply, :ok, {vuelos, id_seq}}
@@ -36,6 +41,10 @@ defmodule Reservas.Worker do
     Reservas.DB.cancelar(reserva_id)
 
     # Notificar al usuario de la cancelacion
+  end
+
+  def notificacion_cierre_de_vuelo(pid, id) do
+    GenServer.cast(pid, {:cierre_de_vuelo, {id}})
   end
 
   ## ----- Private functions --------------------------------
