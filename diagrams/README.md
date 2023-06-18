@@ -10,7 +10,7 @@ En esta seccion podran encontrar diagramas que explican el modelo de _levantar v
 -   ![#846358](https://placehold.co/15x15/846358/846358.png) `Indica la secuencia/relaciones del flujo de reserva de un vuelo`
 -   ![#9c36b5](https://placehold.co/15x15/9c36b5/9c36b5.png) `Indica la secuencia/relaciones del flujo de cierre de un vuelo`
 -   ![#1971c2](https://placehold.co/15x15/1971c2/1971c2.png) `Indica la secuencia/relaciones del flujo de creacion de alertas para vuelos`
--   <span style="color:red">----- `Indica relacion de supervision a un proceso`</span>
+-   <span style="color:#f00">----- </span>`Indica relacion de supervision a un proceso`
 
 ## Diagramas de secuencia
 
