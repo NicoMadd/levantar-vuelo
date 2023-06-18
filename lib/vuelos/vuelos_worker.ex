@@ -17,6 +17,24 @@ defmodule Vuelos.Worker do
     {:noreply, state}
   end
 
+  def handle_call({:asignar_asientos, {vuelo_id, asientos}}, _, state) do
+    # fetch del vuelo
+    vuelo = Vuelos.DB.get(vuelo_id)
+
+    # validacion interna
+    case _validar_asientos(vuelo, asientos) do
+      {:ok, message} ->
+        status = _asignar_asientos(vuelo_id, asientos)
+        {:reply, status, state}
+
+      {:error, message} ->
+        {:reply, {:error, message}, state}
+
+      {:none, message} ->
+        {:reply, {:none, message}, state}
+    end
+  end
+
   def handle_call(
         {:publicar, {tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}},
         _,
@@ -42,10 +60,6 @@ defmodule Vuelos.Worker do
     {:reply, :ok, state}
   end
 
-  def handle_call(:get_all, _from, state) do
-    {:reply, state, state}
-  end
-
   # Funciones definidas para el cliente
 
   @doc """
@@ -63,7 +77,37 @@ defmodule Vuelos.Worker do
     )
   end
 
-  def validar(_pid, _vuelo_id) do
+  def validar_vuelo(_pid, _vuelo_id) do
     {:reply, :ok}
+  end
+
+  def asignar_asientos(pid, vuelo_id, asientos) do
+    GenServer.call(
+      pid,
+      {:asignar_asientos, {vuelo_id, asientos}}
+    )
+  end
+
+  # Private functions
+
+  defp _validar_asientos(nil, _asientos) do
+    {:none, "No existe el vuelo"}
+  end
+
+  defp _validar_asientos(vuelo, asientos_a_ocupar) do
+    {{_, cantidad_asientos_disponibles, _, _, _, _}, cantidad_asientos_ocupados} = vuelo
+
+    IO.puts("#{cantidad_asientos_disponibles} #{cantidad_asientos_ocupados}")
+
+    if(cantidad_asientos_ocupados + asientos_a_ocupar <= cantidad_asientos_disponibles) do
+      {:ok, "Los asientos a asignar estan disponibles"}
+    else
+      {:error, "No estan disponibles los asientos"}
+    end
+  end
+
+  defp _asignar_asientos(vuelo_id, asientos) do
+    {:reply, status} = Vuelos.DB.asignar_asientos(vuelo_id, asientos)
+    status
   end
 end
