@@ -2,11 +2,21 @@ defmodule Vuelos.Worker do
   use GenServer
   require Logger
 
-  def start_link(init) do
-    GenServer.start_link(__MODULE__, init, name: :vuelos_worker)
+  @registry Vuelos.Worker.Registry
+
+  def start_link(worker_id) do
+    GenServer.start_link(__MODULE__, :ok, name: {:via, Registry, {@registry, worker_id}})
   end
 
-  def init(_init_arg) do
+  def child_spec({worker_id}) do
+    %{
+      id: worker_id,
+      start: {__MODULE__, :start_link, [worker_id]},
+      type: :worker
+    }
+  end
+
+  def init(:ok) do
     {:ok, []}
   end
 

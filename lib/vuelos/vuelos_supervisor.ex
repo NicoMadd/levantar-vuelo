@@ -6,7 +6,12 @@ defmodule Vuelos.Supervisor do
   end
 
   def init(_init_arg) do
-    children = [Vuelos.Worker, Vuelos.DB]
+    children = [
+      Vuelos.DynamicSupervisor,
+      Vuelos.DB,
+      {Registry, [keys: :unique, name: Vuelos.Worker.Registry]}
+    ]
+
     opts = [strategy: :one_for_one]
 
     Supervisor.init(children, opts)
