@@ -49,6 +49,10 @@ defmodule Reservas.Worker do
     GenServer.call(pid, {:iniciar_reserva, {vuelo_id, usuario_id}})
   end
 
+  def iniciar_reserva(pid, vuelo_id, usuario_id) do
+    GenServer.call(pid, {:iniciar_reserva, {vuelo_id, usuario_id}})
+  end
+
   def reservar_asientos(pid, reserva_id, asientos) do
     GenServer.call(pid, {:reservar_asientos, {reserva_id, asientos}})
   end

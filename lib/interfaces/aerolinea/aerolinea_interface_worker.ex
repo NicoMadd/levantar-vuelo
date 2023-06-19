@@ -31,12 +31,20 @@ defmodule Aerolinea.Interface.Worker do
       "Montevideo",
       3
     )
+
+    {:reply, :ok, {aerolinea_id}}
   end
 
   # Cliente
 
-  def publicar_vuelo(pid) do
-    GenServer.call()
+  def publicar_vuelo(name) do
+    case Registry.lookup(@registry, name) do
+      [{pid, _}] ->
+        GenServer.call(pid, {:publicar_vuelo})
+
+      _ ->
+        {:none}
+    end
   end
 
   def publicar_vuelo_largo() do
