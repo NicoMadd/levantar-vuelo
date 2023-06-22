@@ -1,4 +1,4 @@
-defmodule Aerolinea.Interface.Worker do
+defmodule Aerolinea do
   use GenServer
   require Logger
 

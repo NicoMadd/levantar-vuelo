@@ -1,4 +1,4 @@
-defmodule Aerolinea.Interface.Supervisor do
+defmodule Aerolinea.Supervisor do
   use Supervisor
 
   def start_link(init) do
@@ -6,7 +6,7 @@ defmodule Aerolinea.Interface.Supervisor do
   end
 
   def init(_init_arg) do
-    children = [Aerolinea.Interface.Worker]
+    children = [Aerolinea.Worker]
     opts = [strategy: :one_for_one]
 
     Supervisor.init(children, opts)

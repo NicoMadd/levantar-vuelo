@@ -6,7 +6,7 @@ defmodule Usuario.Supervisor do
   end
 
   def init(_init_arg) do
-    children = [Usuario.Interface.Worker]
+    children = [Usuario]
     opts = [strategy: :one_for_one]
 
     Supervisor.init(children, opts)
