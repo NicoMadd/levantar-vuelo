@@ -6,7 +6,7 @@ defmodule Alertas.Supervisor do
   end
 
   def init(_init_arg) do
-    children = [Alertas.Worker, Alertas.Notifier, Alertas.DB]
+    children = [Alertas.DynamicSupervisor, Alertas.Registry]
     opts = [strategy: :one_for_one]
 
     Supervisor.init(children, opts)
