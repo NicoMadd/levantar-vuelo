@@ -4,29 +4,37 @@ defmodule Vuelo do
 
   @registry Vuelos.Registry
 
-  def start_link(vuelo_id) do
-    GenServer.start_link(__MODULE__, vuelo_id, name: {:via, Registry, {@registry, vuelo_id}})
+  def start_link(vuelo_id, info) do
+    GenServer.start_link(__MODULE__, {vuelo_id, info},
+      name: {:via, Registry, {@registry, vuelo_id}}
+    )
   end
 
   # child spec
-  def child_spec({vuelo_id}) do
+  def child_spec({vuelo_id, info}) do
     %{
       id: "vuelo#{vuelo_id}",
-      start: {__MODULE__, :start_link, [vuelo_id]},
+      start: {__MODULE__, :start_link, [vuelo_id, info]},
       type: :worker,
       restart: :transient
     }
   end
 
-  def init(_) do
-    {:ok, []}
+  def init({vuelo_id, info}) do
+    {_, _, _, _, _, tiempo_limite} = info
+    Process.send_after(self(), {:cerrar_vuelo}, tiempo_limite * 1000)
+    {:ok, {vuelo_id, info}}
   end
 
   # Handles
 
-  def handle_info({:cerrar_vuelo, id}, state) do
-    Vuelos.DB.cerrar_vuelo(id)
-    {:noreply, state}
+  def handle_call(:info, _from, {v, info}) do
+    {:reply, info, {v, info}}
+  end
+
+  def handle_info({:cerrar_vuelo}, {vuelo_id, info}) do
+    Logger.info("Vuelo #{vuelo_id} cerrandose")
+    {:stop, :normal, {vuelo_id, info}}
   end
 
   def handle_call({:validar_vuelo, vuelo_id}, _, state) do
@@ -80,21 +88,6 @@ defmodule Vuelo do
   end
 
   # Funciones definidas para el cliente
-
-  @doc """
-  tipo_avion: string
-  cantidad_asientos: number
-  datetime: ~UTC datetime
-  origen: string
-  destino: string
-  tiempo_limite: number: en segundos
-  """
-  def publicar_vuelo(pid, tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite) do
-    GenServer.call(
-      pid,
-      {:publicar, {tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}}
-    )
-  end
 
   def validar_vuelo(pid, vuelo_id) do
     GenServer.call(pid, {:validar_vuelo, vuelo_id})

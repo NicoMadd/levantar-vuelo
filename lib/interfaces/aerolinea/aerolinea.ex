@@ -13,8 +13,7 @@ defmodule Aerolinea do
   def publicar_vuelo() do
     Logger.info("Usuario publica vuelo")
 
-    Vuelos.Worker.publicar_vuelo(
-      :vuelos_worker,
+    Vuelos.DynamicSupervisor.publicar_vuelo(
       "Boeing",
       10,
       ~U[2023-06-18 00:00:00Z],
