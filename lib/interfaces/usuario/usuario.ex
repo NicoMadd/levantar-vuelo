@@ -1,4 +1,4 @@
-defmodule Usuario.Interface.Worker do
+defmodule Usuario do
   use GenServer
   require Logger
 
