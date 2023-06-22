@@ -1,4 +1,4 @@
-defmodule Usuario.Interface.Supervisor do
+defmodule Usuario.Supervisor do
   use Supervisor
 
   def start_link(init) do
