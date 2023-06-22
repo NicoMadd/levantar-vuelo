@@ -22,7 +22,13 @@ defmodule Vuelo do
 
   def init({vuelo_id, info}) do
     {_, _, _, _, _, tiempo_limite} = info
+
+    # Autoterminacion
     Process.send_after(self(), {:cerrar_vuelo}, tiempo_limite * 1000)
+
+    # Notificacion de nuevo vuelo
+    Vuelo.Notification.notificar(:vuelo, {vuelo_id, info})
+
     {:ok, {vuelo_id, info}}
   end
 
