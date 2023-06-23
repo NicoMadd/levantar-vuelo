@@ -24,23 +24,23 @@ defmodule Vuelo do
     {_, _, _, _, _, tiempo_limite} = info
 
     # Autoterminacion
-    Process.send_after(self(), {:cerrar_vuelo}, tiempo_limite * 1000)
+    Process.send_after(self(), :cerrar_vuelo, tiempo_limite * 1000)
 
     # Notificacion de nuevo vuelo
-    Vuelo.Notification.notificar(:vuelo, {vuelo_id, info})
+    Notification.Supervisor.notificar(:vuelo, {vuelo_id, info})
 
     {:ok, {vuelo_id, info}}
   end
 
   # Handles
 
-  def handle_call(:info, _from, {v, info}) do
-    {:reply, info, {v, info}}
-  end
-
-  def handle_info({:cerrar_vuelo}, {vuelo_id, info}) do
+  def handle_info(:cerrar_vuelo, {vuelo_id, info}) do
     Logger.info("Vuelo #{vuelo_id} cerrandose")
     {:stop, :normal, {vuelo_id, info}}
+  end
+
+  def handle_call(:info, _from, {v, info}) do
+    {:reply, info, {v, info}}
   end
 
   def handle_call({:validar_vuelo, vuelo_id}, _, state) do
@@ -66,31 +66,6 @@ defmodule Vuelo do
       {:none, message} ->
         {:reply, {:none, message}, state}
     end
-  end
-
-  def handle_call(
-        {:publicar, {tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}},
-        _,
-        state
-      ) do
-    Logger.info("Publicando vuelo")
-
-    Logger.info(
-      "#{tipo_avion} #{cantidad_asientos} #{datetime} #{origen} #{destino} #{tiempo_limite}"
-    )
-
-    ## Agrega el vuelo al agent
-    ## Es sicronico ya que debo asegurar que se haya agregado el vuelo antes de responder.
-    Vuelos.DB.agregar_vuelo(
-      tipo_avion,
-      cantidad_asientos,
-      datetime,
-      origen,
-      destino,
-      tiempo_limite
-    )
-
-    {:reply, :ok, state}
   end
 
   # Funciones definidas para el cliente
