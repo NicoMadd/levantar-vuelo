@@ -1,4 +1,4 @@
-defmodule Alertas.Supervisor do
+defmodule Alertas.Registry.Supervisor do
   use Supervisor
 
   def start_link(init) do
@@ -6,7 +6,10 @@ defmodule Alertas.Supervisor do
   end
 
   def init(_init_arg) do
-    children = [Alertas.DynamicSupervisor, Alertas.Registry.Supervisor]
+    children = [
+      Alertas.Registry
+    ]
+
     opts = [strategy: :one_for_one]
 
     Supervisor.init(children, opts)
