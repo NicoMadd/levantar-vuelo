@@ -11,8 +11,7 @@ defmodule Vuelos.DynamicSupervisor do
 
   def start_child({tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}) do
     vuelo_id = App.Utils.generate_id()
-    # Ejemplo para agregar accounts:
-    # {:ok, pid} = AccountDynamicSupervisor.start_child(1)
+
     spec =
       {Vuelo,
        {vuelo_id, {tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}}}
