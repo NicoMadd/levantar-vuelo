@@ -1,4 +1,4 @@
-defmodule Reservas.Supervisor do
+defmodule Reservas.Registry.Supervisor do
   use Supervisor
 
   def start_link(init) do
@@ -6,7 +6,7 @@ defmodule Reservas.Supervisor do
   end
 
   def init(_init_arg) do
-    children = [Reservas.Registry.Supervisor, Reservas.DynamicSupervisor]
+    children = [Reservas.Registry]
     opts = [strategy: :one_for_one]
 
     Supervisor.init(children, opts)
