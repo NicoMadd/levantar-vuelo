@@ -19,11 +19,11 @@ defmodule Alertas.Registry do
     {:ok, []}
   end
 
-  def find_or_create_alerta(alerta_id) do
+  def find_or_create_alerta(alerta_id, type) do
     if alerta_exists?(alerta_id) do
       {:ok, Registry.lookup(__MODULE__, alerta_id) |> List.first() |> elem(0)}
     else
-      {_, pid} = alerta_id |> Alertas.DynamicSupervisor.start_child()
+      {_, pid} = alerta_id |> Alertas.DynamicSupervisor.start_child(type)
       {:ok, pid}
     end
   end
