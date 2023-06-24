@@ -23,4 +23,16 @@ defmodule Reserva do
   def init({usuario_id, vuelo_id}) do
     {:ok, {usuario_id, vuelo_id}}
   end
+
+  # Handles
+
+  def handle_cast({:cierre, vuelo_id}, {usuario_id, vuelo_id}) do
+    IO.puts("Notificando usuario #{usuario_id} del cierre del vuelo #{vuelo_id}")
+    {:noreply, {usuario_id, vuelo_id}}
+  end
+
+  # Cliente
+  def notificar_cierre(pid, vuelo_id) do
+    GenServer.cast(pid, {:cierre, vuelo_id})
+  end
 end

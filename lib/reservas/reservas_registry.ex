@@ -24,10 +24,7 @@ defmodule Reservas.Registry do
   end
 
   def find_reservas_by_vuelo(vuelo_id) do
-    match_all = {:_, :"$1"}
-    map_result = [%{id: :"$1"}]
-
-    guards = [{:==, :"$1", vuelo_id}]
-    Registry.select(__MODULE__, [{match_all, guards, map_result}])
+    # FIXME - Corregir que devuelva las reservas de forma correcta. Al momento devuelve un array vacion ya que no puede hacer pattern matching.
+    Registry.lookup(__MODULE__, {nil, vuelo_id})
   end
 end
