@@ -36,6 +36,9 @@ defmodule Vuelo do
 
   def handle_info(:cerrar_vuelo, {vuelo_id, info}) do
     Logger.info("Vuelo #{vuelo_id} cerrandose")
+
+    Notification.Supervisor.notificar(:cierre, {vuelo_id, info})
+
     {:stop, :normal, {vuelo_id, info}}
   end
 
