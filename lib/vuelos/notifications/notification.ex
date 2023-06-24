@@ -15,12 +15,14 @@ defmodule Notification do
     |> Enum.map(fn {alerta_id, type} ->
       {alerta_id, Alertas.Registry.find_or_create_alerta(alerta_id, type)}
     end)
-    |> Enum.each(fn {alerta_id, {_, pid}} ->
-      Alerta.notificar_usuarios(pid, {vuelo_id, alerta_id})
+    |> Enum.each(fn {alerta_id, {_, pid_alerta}} ->
+      Alerta.notificar_usuarios(pid_alerta, {vuelo_id, alerta_id})
     end)
   end
 
   def notificar_cierre({vuelo_id, info}) do
     Logger.info("Notificar cierre #{vuelo_id}")
+
+    # Reservas.Registry.find_reservas_by_vuelo(vuelo_id)
   end
 end
