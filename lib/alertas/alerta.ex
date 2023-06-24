@@ -94,14 +94,26 @@ defmodule Alerta do
 
   defp loggear_suscripcion(usuario_id, alerta_id, :mes)
        when is_integer(alerta_id) and alerta_id >= 1 and alerta_id <= 12 do
-    Logger.info("Suscribiendo al usuario #{usuario_id} a la lista del mes #{alerta_id}")
+    Logger.info(
+      "Suscribiendo al usuario #{usuario_id} a la lista de alertas del mes #{alerta_id}"
+    )
   end
 
   defp loggear_suscripcion(usuario_id, alerta_id, :origen) when is_bitstring(alerta_id) do
-    Logger.info("Suscribiendo al usuario #{usuario_id} a la lista del origen #{alerta_id}")
+    Logger.info(
+      "Suscribiendo al usuario #{usuario_id} a la lista de alertas del origen #{alerta_id}"
+    )
   end
 
   defp loggear_suscripcion(usuario_id, alerta_id, :destino) do
-    Logger.info("Suscribiendo al usuario #{usuario_id} a la lista de la fecha #{alerta_id}")
+    Logger.info(
+      "Suscribiendo al usuario #{usuario_id} a la lista de alertas de la fecha #{alerta_id}"
+    )
+  end
+
+  defp loggear_suscripcion(usuario_id, alerta_id, :fecha) do
+    Logger.info(
+      "Suscribiendo al usuario #{usuario_id} a la lista de alertas por fecha #{alerta_id}"
+    )
   end
 end
