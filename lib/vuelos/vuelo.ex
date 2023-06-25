@@ -21,7 +21,7 @@ defmodule Vuelo do
   end
 
   def init({vuelo_id, info}) do
-    {_, _, _, _, _, tiempo_limite} = info
+    {tipo_avion, _, datetime, origen, destino, tiempo_limite} = info
 
     # Autoterminacion
     Process.send_after(self(), :cerrar_vuelo, tiempo_limite * 1000)
@@ -29,45 +29,36 @@ defmodule Vuelo do
     # Notificacion de nuevo vuelo
     Notification.Supervisor.notificar(:vuelo, {vuelo_id, info})
 
-    {:ok, {vuelo_id, info}}
+    vuelo_state = %VueloState{
+      asientos: Vuelos.Asientos.Builder.build(tipo_avion),
+      origen: origen,
+      destino: destino,
+      fecha_hora_despegue: datetime,
+      tipo_avion: tipo_avion,
+      tiempo_oferta: tiempo_limite
+    }
+
+    {:ok, {vuelo_id, vuelo_state}}
   end
 
   # Handles
 
-  def handle_info(:cerrar_vuelo, {vuelo_id, info}) do
+  def handle_info(:cerrar_vuelo, {vuelo_id, vuelo_state}) do
     Logger.info("Vuelo #{vuelo_id} cerrandose")
 
-    Notification.Supervisor.notificar(:cierre, {vuelo_id, info})
+    Notification.Supervisor.notificar(:cierre, {vuelo_id, vuelo_state})
 
-    {:stop, :normal, {vuelo_id, info}}
+    {:stop, :normal, {vuelo_id, vuelo_state}}
   end
 
   def handle_call(:info, _from, {v, info}) do
     {:reply, info, {v, info}}
   end
 
-  def handle_call({:validar_vuelo, vuelo_id}, _, state) do
-    vuelo = Vuelos.DB.get(vuelo_id)
-    response = _validar_vuelo(vuelo)
-    {:reply, response, state}
-  end
-
-  def handle_call({:asignar_asientos, {vuelo_id, asientos}}, _, state) do
-    # fetch del vuelo
-    vuelo = Vuelos.DB.get(vuelo_id)
-
-    # validacion interna
-    case _validar_asientos(vuelo, asientos) do
-      {:ok, message} ->
-        Logger.info(message)
-        response = _asignar_asientos(vuelo_id, asientos)
-        {:reply, response, state}
-
-      {:error, message} ->
-        {:reply, {:error, message}, state}
-
-      {:none, message} ->
-        {:reply, {:none, message}, state}
+  def handle_call({:asignar_asiento, asientos_buscados}, _, {vuelo_id, vuelo_state}) do
+    case validar_asientos_buscados(vuelo_state.asientos, asientos_buscados) do
+      :nil -> {:reply, {:ok, "asientos asignados"}, {vuelo_id, asignar_asientos(vuelo_state, asientos_buscados)}}
+      error_msg -> {:reply, {:error, error_msg}, {vuelo_id, vuelo_state}}
     end
   end
 
@@ -77,6 +68,7 @@ defmodule Vuelo do
     GenServer.call(pid, {:validar_vuelo, vuelo_id})
   end
 
+  @spec asignar_asientos(atom | pid | {atom, any} | {:via, atom, any}, any, any) :: any
   def asignar_asientos(pid, vuelo_id, asientos) do
     GenServer.call(
       pid,
@@ -86,30 +78,47 @@ defmodule Vuelo do
 
   # Private functions
 
-  defp _validar_vuelo(nil) do
-    :none
+  # asigna los asientos independientemente que esten ocupados o no. validar que los asientos esten libres antes de llamar a esta funcion
+  defp asignar_asientos(vuelo_state, asientos_buscados) do
+    lista_asientos_actualizada = Enum.map(vuelo_state.asientos, fn asiento_vuelo ->
+      case Enum.find(asientos_buscados, &(&1.numero == asiento_vuelo.numero)) do
+        %{pasajero: pasajero} -> %{asiento_vuelo | disponible?: false, pasajero: pasajero}
+        _ -> asiento_vuelo
+      end
+    end)
+
+    %{vuelo_state | asientos: lista_asientos_actualizada}
   end
 
-  defp _validar_vuelo(_vuelo) do
-    :ok
-  end
-
-  defp _validar_asientos(nil, _asientos) do
-    {:none, "No existe el vuelo"}
-  end
-
-  defp _validar_asientos(vuelo, asientos_a_ocupar) do
-    {{_, cantidad_asientos_disponibles, _, _, _, _}, cantidad_asientos_ocupados} = vuelo
-
-    if(cantidad_asientos_ocupados + asientos_a_ocupar <= cantidad_asientos_disponibles) do
-      {:ok, "Los asientos a asignar estan disponibles"}
-    else
-      {:error, "No estan disponibles los asientos"}
+  # aplica validaciones sobre asientos
+  defp validar_asientos_buscados(lista_asientos, asientos_buscados) do
+    cond do
+      asientos_buscados_duplicados?(asientos_buscados) -> "Se informaron asientos duplicados"
+      !asientos_buscados_existen?(lista_asientos, asientos_buscados) -> "Algunos asientos solicitados no existen"
+      !asientos_buscados_libres?(lista_asientos, asientos_buscados) -> "Algunos asientos solicitados no estan libres"
+      true -> nil
     end
   end
 
-  defp _asignar_asientos(vuelo_id, asientos) do
-    {:reply, response} = Vuelos.DB.asignar_asientos(vuelo_id, asientos)
-    {:ok, response}
+  # Valida que los asientos se encuentren libres
+  defp asientos_buscados_libres?(lista_asientos, asientos_buscados) do
+    lista_asientos
+    |> Enum.filter(fn asiento_vuelo -> Enum.any?(asientos_buscados, &(&1.numero == asiento_vuelo.numero)) end)
+    |> Enum.all?(fn asiento_vuelo -> asiento_vuelo.disponible? end)
   end
+
+  # Valida si existen los asientos
+  defp asientos_buscados_existen?(lista_asientos, asientos_buscados) do
+    asientos_buscados
+    |> Enum.all?(fn asiento_buscado -> Enum.any?(lista_asientos, &(&1.numero == asiento_buscado.numero)) end)
+  end
+
+  # Valida la lista contiene asientos duplicados
+  defp asientos_buscados_duplicados?(asientos_buscados) do
+    asientos_buscados
+    |> Enum.frequencies_by(fn asiento_buscado -> asiento_buscado.numero end)
+    |> Map.to_list()
+    |> Enum.any?(fn {_numero, cantidad} -> cantidad > 1 end)
+  end
+
 end
