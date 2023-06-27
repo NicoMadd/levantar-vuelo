@@ -5,10 +5,13 @@ participant Usuario.Interface.Worker
 participant Reservas.Worker
 participant Vuelos.Worker
 database Reservas.DB
+database Vuelos.DB
 
 
 Usuario -> Usuario.Interface.Worker: Iniciar reserva de un vuelo
 Usuario.Interface.Worker -> Reservas.Worker: Iniciar reserva \n usuario + vuelo
+Reservas.Worker -> Vuelos.Worker: Validar vuelo \n vuelo
+Reservas.Worker <-- Vuelos.Worker: Vuelo valido
 Reservas.Worker -> Reservas.DB: Crear reserva inicial \n usuario + vuelo
 Reservas.Worker <-- Reservas.DB: ID Reserva
 Reservas.Worker --> Usuario.Interface.Worker: ID Reserva
@@ -18,14 +21,18 @@ Usuario.Interface.Worker --> Usuario: Reserva iniciada
 newpage
 
 Usuario -> Usuario.Interface.Worker: Reservar vuelo \n reserva_id + asientos
-Usuario.Interface.Worker -> Reservas.Worker: Publicar vuelo \n reserva_id + asientos
+Usuario.Interface.Worker -> Reservas.Worker: Reservar vuelo \n reserva_id + asientos
 activate Reservas.Worker 
 Reservas.Worker -> Vuelos.Worker: Validar vuelo \n vuelo
 Reservas.Worker <-- Vuelos.Worker: Vuelo valido
-Reservas.Worker -> Vuelos.Worker: Validar asientos \n vuelo + asientos
-Reservas.Worker <-- Vuelos.Worker: Asientos validos
 Reservas.Worker -> Vuelos.Worker: Asignar asientos \n vuelo + asientos
+Vuelos.Worker -> Vuelos.DB: Fetch vuelo \n vuelo_id
+activate Vuelos.Worker
+Vuelos.Worker <-- Vuelos.DB: Devuelve el vuelo
+Vuelos.Worker -> Vuelos.Worker: Validar asientos \n vuelo + asientos
+
 Reservas.Worker <-- Vuelos.Worker: Asientos asignados
+deactivate Vuelos.Worker
 Reservas.Worker -> Reservas.DB: Confirmar reserva
 Reservas.Worker <-- Reservas.DB: Reserva confirmada \n OK
 Reservas.Worker --> Usuario.Interface.Worker: Reserva confirmada

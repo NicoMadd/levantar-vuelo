@@ -5,10 +5,11 @@ defmodule LevantarVuelo.Application do
     IO.puts("Arranca")
 
     children = [
-      Interesados.Supervisor,
       Vuelos.Supervisor,
-      Reservas.Supervisor,
-      Alertas.Supervisor
+      Alertas.Supervisor,
+      Reservas.Supervisor
+      # Aerolinea.Interface.Supervisor,
+      # Usuario.Interface.Supervisor
     ]
 
     opts = [strategy: :one_for_one]

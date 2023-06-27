@@ -1,4 +1,4 @@
-defmodule Interesados.Supervisor do
+defmodule Vuelos.Registry.Supervisor do
   use Supervisor
 
   def start_link(init) do
@@ -6,7 +6,10 @@ defmodule Interesados.Supervisor do
   end
 
   def init(_init_arg) do
-    children = [Interesados.Worker]
+    children = [
+      Vuelos.Registry
+    ]
+
     opts = [strategy: :one_for_one]
 
     Supervisor.init(children, opts)

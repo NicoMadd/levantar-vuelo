@@ -6,7 +6,7 @@ defmodule Reservas.Supervisor do
   end
 
   def init(_init_arg) do
-    children = [Reservas.Worker, Reservas.DB]
+    children = [Reservas.Registry.Supervisor, Reservas.DynamicSupervisor]
     opts = [strategy: :one_for_one]
 
     Supervisor.init(children, opts)
