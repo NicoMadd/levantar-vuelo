@@ -46,7 +46,7 @@ defmodule Vuelo do
   def handle_info(:cerrar_vuelo, {vuelo_id, vuelo_state}) do
     Logger.info("Vuelo #{vuelo_id} cerrandose")
 
-    Notification.Supervisor.notificar(:cierre, {vuelo_id, vuelo_state})
+    Notification.Supervisor.notificar(:cierre, {vuelo_id})
 
     {:stop, :normal, {vuelo_id, vuelo_state}}
   end
@@ -57,8 +57,8 @@ defmodule Vuelo do
 
   def handle_call({:asignar_asiento, asientos_buscados}, _, {vuelo_id, vuelo_state}) do
     case validar_asientos_buscados(vuelo_state.asientos, asientos_buscados) do
-      :nil -> {:reply, {:ok, "asientos asignados"}, {vuelo_id, asignar_asientos(vuelo_state, asientos_buscados)}}
-      error_msg -> {:reply, {:error, error_msg}, {vuelo_id, vuelo_state}}
+      {:ok, _msg} -> {:reply, {:ok, "asientos asignados"}, {vuelo_id, asignar_asientos(vuelo_state, asientos_buscados)}}
+      {:error, error_msg} -> {:reply, {:error, error_msg}, {vuelo_id, vuelo_state}}
     end
   end
 
@@ -93,10 +93,10 @@ defmodule Vuelo do
   # aplica validaciones sobre asientos
   defp validar_asientos_buscados(lista_asientos, asientos_buscados) do
     cond do
-      asientos_buscados_duplicados?(asientos_buscados) -> "Se informaron asientos duplicados"
-      !asientos_buscados_existen?(lista_asientos, asientos_buscados) -> "Algunos asientos solicitados no existen"
-      !asientos_buscados_libres?(lista_asientos, asientos_buscados) -> "Algunos asientos solicitados no estan libres"
-      true -> nil
+      asientos_buscados_duplicados?(asientos_buscados) -> {:error, "Se informaron asientos duplicados"}
+      !asientos_buscados_existen?(lista_asientos, asientos_buscados) -> {:error, "Algunos asientos solicitados no existen"}
+      !asientos_buscados_libres?(lista_asientos, asientos_buscados) -> {:error, "Algunos asientos solicitados no estan libres"}
+      true -> {:ok, ""}
     end
   end
 
