@@ -5,7 +5,7 @@ defmodule Notification do
   def notificar_vuelo({vuelo_id, info}) do
     Logger.info("Notificar nuevo vuelo #{vuelo_id}")
 
-    {_, _, datetime, origen, destino, _} = info
+    {_, datetime, origen, destino, _} = info
 
     date = DateTime.to_date(datetime)
 

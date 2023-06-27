@@ -21,7 +21,7 @@ defmodule Vuelo do
   end
 
   def init({vuelo_id, info}) do
-    {tipo_avion, _, datetime, origen, destino, tiempo_limite} = info
+    {tipo_avion, datetime, origen, destino, tiempo_limite} = info
 
     # Autoterminacion
     Process.send_after(self(), :cerrar_vuelo, tiempo_limite * 1000)
@@ -57,8 +57,12 @@ defmodule Vuelo do
 
   def handle_call({:asignar_asiento, asientos_buscados}, _, {vuelo_id, vuelo_state}) do
     case validar_asientos_buscados(vuelo_state.asientos, asientos_buscados) do
-      {:ok, _msg} -> {:reply, {:ok, "asientos asignados"}, {vuelo_id, asignar_asientos(vuelo_state, asientos_buscados)}}
-      {:error, error_msg} -> {:reply, {:error, error_msg}, {vuelo_id, vuelo_state}}
+      {:ok, _msg} ->
+        {:reply, {:ok, "asientos asignados"},
+        {vuelo_id, asignar_asientos(vuelo_state, asientos_buscados)}}
+      {:error, error_msg} ->
+        {:reply, {:error, error_msg},
+        {vuelo_id, vuelo_state}}
     end
   end
 
@@ -80,12 +84,13 @@ defmodule Vuelo do
 
   # asigna los asientos independientemente que esten ocupados o no. validar que los asientos esten libres antes de llamar a esta funcion
   defp asignar_asientos(vuelo_state, asientos_buscados) do
-    lista_asientos_actualizada = Enum.map(vuelo_state.asientos, fn asiento_vuelo ->
-      case Enum.find(asientos_buscados, &(&1.numero == asiento_vuelo.numero)) do
-        %{pasajero: pasajero} -> %{asiento_vuelo | disponible?: false, pasajero: pasajero}
-        _ -> asiento_vuelo
-      end
-    end)
+    lista_asientos_actualizada =
+      Enum.map(vuelo_state.asientos, fn asiento_vuelo ->
+        case Enum.find(asientos_buscados, &(&1.numero == asiento_vuelo.numero)) do
+          %{pasajero: pasajero} -> %{asiento_vuelo | disponible?: false, pasajero: pasajero}
+          _ -> asiento_vuelo
+        end
+      end)
 
     %{vuelo_state | asientos: lista_asientos_actualizada}
   end
@@ -93,24 +98,32 @@ defmodule Vuelo do
   # aplica validaciones sobre asientos
   defp validar_asientos_buscados(lista_asientos, asientos_buscados) do
     cond do
-      asientos_buscados_duplicados?(asientos_buscados) -> {:error, "Se informaron asientos duplicados"}
-      !asientos_buscados_existen?(lista_asientos, asientos_buscados) -> {:error, "Algunos asientos solicitados no existen"}
-      !asientos_buscados_libres?(lista_asientos, asientos_buscados) -> {:error, "Algunos asientos solicitados no estan libres"}
-      true -> {:ok, ""}
+      asientos_buscados_duplicados?(asientos_buscados) ->
+        {:error, "Se informaron asientos duplicados"}
+      !asientos_buscados_existen?(lista_asientos, asientos_buscados) ->
+        {:error, "Algunos asientos solicitados no existen"}
+      !asientos_buscados_libres?(lista_asientos, asientos_buscados) ->
+        {:error, "Algunos asientos solicitados no estan libres"}
+      true ->
+        {:ok, ""}
     end
   end
 
   # Valida que los asientos se encuentren libres
   defp asientos_buscados_libres?(lista_asientos, asientos_buscados) do
     lista_asientos
-    |> Enum.filter(fn asiento_vuelo -> Enum.any?(asientos_buscados, &(&1.numero == asiento_vuelo.numero)) end)
+    |> Enum.filter(fn asiento_vuelo ->
+      Enum.any?(asientos_buscados, &(&1.numero == asiento_vuelo.numero))
+    end)
     |> Enum.all?(fn asiento_vuelo -> asiento_vuelo.disponible? end)
   end
 
   # Valida si existen los asientos
   defp asientos_buscados_existen?(lista_asientos, asientos_buscados) do
     asientos_buscados
-    |> Enum.all?(fn asiento_buscado -> Enum.any?(lista_asientos, &(&1.numero == asiento_buscado.numero)) end)
+    |> Enum.all?(fn asiento_buscado ->
+      Enum.any?(lista_asientos, &(&1.numero == asiento_buscado.numero))
+    end)
   end
 
   # Valida la lista contiene asientos duplicados
@@ -120,5 +133,4 @@ defmodule Vuelo do
     |> Map.to_list()
     |> Enum.any?(fn {_numero, cantidad} -> cantidad > 1 end)
   end
-
 end

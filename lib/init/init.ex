@@ -9,8 +9,7 @@ defmodule Init do
   """
   def init_vuelos() do
     Vuelos.DynamicSupervisor.publicar_vuelo(
-      "Boeing",
-      10,
+      :embraer190,
       ~U[2023-06-18 00:00:00Z],
       "Buenos Aires",
       "Montevideo",
@@ -18,8 +17,7 @@ defmodule Init do
     )
 
     Vuelos.DynamicSupervisor.publicar_vuelo(
-      "Boeing 2",
-      20,
+      :boeing737,
       ~U[2023-05-18 00:00:00Z],
       "Roma",
       "Londres",
