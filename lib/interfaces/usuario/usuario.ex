@@ -23,7 +23,7 @@ defmodule Usuario do
       "Iniciando reserva para el vuelo " <> vuelo_id <> " para el usuario: #{usuario_id}"
     )
 
-    Reservas.Worker.iniciar_reserva(:reservas_worker, vuelo_id, usuario_id)
+    Reservas.Worker.iniciar_reserva(:reservas_worker, vuelo_id)
   end
 
   def reservar_asientos(reserva_id, asientos) do

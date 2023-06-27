@@ -9,8 +9,8 @@ defmodule Reservas.DynamicSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def start_child({usuario_id, vuelo_id}) do
-    spec = {Reserva, {usuario_id, vuelo_id}}
+  def start_child(vuelo_id, usuario_id) do
+    spec = {Reserva, {vuelo_id, usuario_id}}
 
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
@@ -25,7 +25,7 @@ defmodule Reservas.DynamicSupervisor do
   destino: string
   tiempo_limite: number: en segundos
   """
-  def iniciar_reserva(usuario_id, vuelo_id) do
-    start_child({usuario_id, vuelo_id})
+  def iniciar_reserva(vuelo_id, usuario_id) do
+    start_child(vuelo_id, usuario_id)
   end
 end

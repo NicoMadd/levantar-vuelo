@@ -19,12 +19,11 @@ defmodule Reservas.Registry do
     {:ok, []}
   end
 
-  def find(usuario_id, vuelo_id) do
-    Registry.lookup(__MODULE__, {usuario_id, vuelo_id})
+  def find(vuelo_id, usuario_id) do
+    Registry.match(__MODULE__, vuelo_id, {usuario_id}) |> List.first
   end
 
   def find_reservas_by_vuelo(vuelo_id) do
-    # FIXME - Corregir que devuelva las reservas de forma correcta. Al momento devuelve un array vacion ya que no puede hacer pattern matching.
-    Registry.lookup(__MODULE__, {nil, vuelo_id})
+    Registry.lookup(__MODULE__, vuelo_id)
   end
 end
