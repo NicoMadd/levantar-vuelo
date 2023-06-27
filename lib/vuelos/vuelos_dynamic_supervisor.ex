@@ -9,12 +9,10 @@ defmodule Vuelos.DynamicSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def start_child({tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}) do
+  def start_child({tipo_avion, datetime, origen, destino, tiempo_limite}) do
     vuelo_id = App.Utils.generate_id()
 
-    spec =
-      {Vuelo,
-       {vuelo_id, {tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite}}}
+    spec = {Vuelo, {vuelo_id, {tipo_avion, datetime, origen, destino, tiempo_limite}}}
 
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
@@ -29,7 +27,7 @@ defmodule Vuelos.DynamicSupervisor do
   destino: string
   tiempo_limite: number: en segundos
   """
-  def publicar_vuelo(tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite) do
-    start_child({tipo_avion, cantidad_asientos, datetime, origen, destino, tiempo_limite})
+  def publicar_vuelo(tipo_avion, datetime, origen, destino, tiempo_limite) do
+    start_child({tipo_avion, datetime, origen, destino, tiempo_limite})
   end
 end
