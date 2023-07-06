@@ -14,7 +14,7 @@ defmodule LevantarVuelo.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      applications: [:logger, :crypto],
+      extra_applications: [:logger, :crypto],
       mod: {LevantarVuelo.Application, []}
     ]
   end
