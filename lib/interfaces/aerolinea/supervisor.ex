@@ -6,9 +6,14 @@ defmodule Aerolinea.Supervisor do
   end
 
   def init(_init_arg) do
-    children = [Aerolinea.Worker]
+    children = [
+      {Plug.Cowboy, scheme: :http, plug: Aerolinea.Router, options: [port: cowboy_port()]}
+    ]
+
     opts = [strategy: :one_for_one]
 
     Supervisor.init(children, opts)
   end
+
+  defp cowboy_port, do: 8080
 end
