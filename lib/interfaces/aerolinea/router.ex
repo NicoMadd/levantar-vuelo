@@ -21,4 +21,9 @@ defmodule Aerolinea.Router do
   match _ do
     send_resp(conn, 404, "Not Found")
   end
+
+  @impl Plug.ErrorHandler
+  def handle_errors(conn, %{kind: _kind, reason: _reason, stack: _stack}) do
+    send_resp(conn, conn.status, "Something went wrong")
+  end
 end
