@@ -7,11 +7,11 @@ defmodule Aerolinea.Supervisor do
 
   def init(_init_arg) do
     children = [
-      {Plug.Cowboy, scheme: :http, plug: Aerolinea.Router, options: [port: cowboy_port()]},
+      {Plug.Cowboy, scheme: :http, plug: Aerolinea.Router, options: [port: cowboy_rest_port()]},
       Plug.Cowboy.child_spec(
         scheme: :http,
         plug: Aerolinea.Websocket.Router,
-        options: [dispatch: dispatch(), port: 4000]
+        options: [dispatch: dispatch(), port: cowboy_ws_port()]
       ),
       Registry.child_spec(
         keys: :duplicate,
@@ -24,7 +24,8 @@ defmodule Aerolinea.Supervisor do
     Supervisor.init(children, opts)
   end
 
-  defp cowboy_port, do: 8080
+  defp cowboy_rest_port, do: 5000
+  defp cowboy_ws_port, do: 4000
 
   defp dispatch do
     [
