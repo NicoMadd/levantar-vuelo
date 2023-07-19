@@ -1,4 +1,4 @@
-defmodule Aerolinea.Supervisor do
+defmodule API.Supervisor do
   use Supervisor
 
   def start_link(init) do
