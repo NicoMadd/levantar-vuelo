@@ -7,8 +7,8 @@ defmodule LevantarVuelo.Application do
     children = [
       Vuelos.Supervisor,
       Alertas.Supervisor,
-      Reservas.Supervisor
-      # Aerolinea.Interface.Supervisor,
+      Reservas.Supervisor,
+      Aerolinea.Supervisor
       # Usuario.Interface.Supervisor
     ]
 

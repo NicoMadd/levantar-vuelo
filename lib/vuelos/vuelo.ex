@@ -59,10 +59,10 @@ defmodule Vuelo do
     case validar_asientos_buscados(vuelo_state.asientos, asientos_buscados) do
       {:ok, _msg} ->
         {:reply, {:ok, "asientos asignados"},
-        {vuelo_id, asignar_asientos(vuelo_state, asientos_buscados)}}
+         {vuelo_id, asignar_asientos(vuelo_state, asientos_buscados)}}
+
       {:error, error_msg} ->
-        {:reply, {:error, error_msg},
-        {vuelo_id, vuelo_state}}
+        {:reply, {:error, error_msg}, {vuelo_id, vuelo_state}}
     end
   end
 
@@ -100,10 +100,13 @@ defmodule Vuelo do
     cond do
       asientos_buscados_duplicados?(asientos_buscados) ->
         {:error, "Se informaron asientos duplicados"}
+
       !asientos_buscados_existen?(lista_asientos, asientos_buscados) ->
         {:error, "Algunos asientos solicitados no existen"}
+
       !asientos_buscados_libres?(lista_asientos, asientos_buscados) ->
         {:error, "Algunos asientos solicitados no estan libres"}
+
       true ->
         {:ok, ""}
     end
