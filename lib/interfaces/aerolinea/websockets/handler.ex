@@ -34,14 +34,14 @@ defmodule Aerolinea.Websocket.Handler do
     {:reply, {:text, json}, state}
   end
 
-  def alertar(mensaje) do
+  def notificar(mensaje) do
     Aerolinea.Websocket.Registry
     |> Registry.dispatch("aerolineas", fn entries ->
       for {pid, _} <- entries, do: send(pid, {:broadcast, mensaje})
     end)
   end
 
-  def alertar(mensaje, id_usuario) do
+  def notificar(mensaje, id_usuario) do
     Aerolinea.Websocket.Registry
     |> Registry.match("aerolineas", {id_usuario})
     |> Enum.each(fn {pid, _} -> send(pid, {:broadcast, mensaje}) end)
