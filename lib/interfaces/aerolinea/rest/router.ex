@@ -21,12 +21,11 @@ defmodule Aerolinea.Router do
 
   post "/vuelos" do
     # TODO testear validacion de parametros
-    IO.inspect(conn.body_params)
 
-    tipo_avion = conn.body_params["tipo"]
+    tipo_avion = validar_tipo(conn.body_params["tipo"])
     origen = conn.body_params["origen"]
     destino = conn.body_params["destino"]
-    datetime = conn.body_params["fecha"]
+    datetime = validar_fecha(conn.body_params["fecha"])
     tiempo_limite = conn.body_params["limite"]
 
     Vuelos.DynamicSupervisor.publicar_vuelo(tipo_avion, datetime, origen, destino, tiempo_limite)
@@ -35,6 +34,20 @@ defmodule Aerolinea.Router do
 
   match _ do
     send_resp(conn, 404, "Not Found")
+  end
+
+  defp validar_tipo(tipo) do
+    case tipo do
+      "Embraer" -> :embraer190
+      "Boeing" -> :boeing737
+      _ -> :embraer190
+    end
+  end
+
+  defp validar_fecha(fecha_string) do
+    # fecha viene como string. Lo parseo a datetime.
+    {:ok, datetime, _} = DateTime.from_iso8601(fecha_string)
+    datetime
   end
 
   @impl Plug.ErrorHandler
