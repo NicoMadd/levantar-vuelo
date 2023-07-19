@@ -2,7 +2,7 @@ defmodule Aerolinea.Websocket.Registry do
   require Logger
 
   def start_link(_init) do
-    Registry.start_link(keys: :unique, name: __MODULE__)
+    Registry.start_link(keys: :duplicate, name: __MODULE__)
   end
 
   def child_spec(opts) do
