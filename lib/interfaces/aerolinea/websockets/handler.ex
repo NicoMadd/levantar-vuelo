@@ -12,7 +12,7 @@ defmodule Aerolinea.Websocket.Handler do
     %{peer: {_ip, port}} = state
 
     Aerolinea.Websocket.Registry
-    |> Registry.register("aerolinea-#{port}", self())
+    |> Registry.register("aerolineas", {port})
 
     IO.puts("aerolinea: aerolinea-#{port} conectada")
 
@@ -25,28 +25,26 @@ defmodule Aerolinea.Websocket.Handler do
   end
 
   def websocket_handle({:text, json}, state) do
-    {:reply, {:text, json <> "asd"}, state}
-  end
-
-  def websocket_info(:broadcast, state) do
-    stime = String.slice(Time.to_iso8601(Time.utc_now()), 0, 8)
-    IO.puts(stime)
-    {:ok, json} = Jason.encode(%{time: stime})
     {:reply, {:text, json}, state}
   end
 
-  def websocket_info(:broadcast, _req, state) do
+  def websocket_info({:broadcast, message}, state) do
     stime = String.slice(Time.to_iso8601(Time.utc_now()), 0, 8)
-    IO.puts(stime)
-    {:ok, json} = Jason.encode(%{time: stime})
+    {:ok, json} = Jason.encode(%{time: stime, message: message})
     {:reply, {:text, json}, state}
   end
 
-  def alerta() do
+  def alertar(mensaje) do
     Aerolinea.Websocket.Registry
     |> Registry.dispatch("aerolineas", fn entries ->
-      for {pid, _} <- entries, do: IO.puts(pid)
+      for {pid, _} <- entries, do: send(pid, {:broadcast, mensaje})
     end)
+  end
+
+  def alertar(mensaje, id_usuario) do
+    Aerolinea.Websocket.Registry
+    |> Registry.match("aerolineas", {id_usuario})
+    |> Enum.each(fn {pid, _} -> send(pid, {:broadcast, mensaje}) end)
   end
 
   def cantidad() do
