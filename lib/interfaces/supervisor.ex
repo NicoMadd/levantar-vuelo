@@ -10,13 +10,11 @@ defmodule Aerolinea.Supervisor do
       {Plug.Cowboy, scheme: :http, plug: Aerolinea.Router, options: [port: cowboy_rest_port()]},
       Plug.Cowboy.child_spec(
         scheme: :http,
-        plug: Aerolinea.Websocket.Router,
+        plug: Websocket.Router,
         options: [dispatch: dispatch(), port: cowboy_ws_port()]
       ),
-      Registry.child_spec(
-        keys: :duplicate,
-        name: Aerolinea.Websocket.Registry
-      )
+      Aerolinea.Websocket.Registry,
+      Usuario.Websocket.Registry
     ]
 
     opts = [strategy: :one_for_one]
@@ -31,7 +29,8 @@ defmodule Aerolinea.Supervisor do
     [
       {:_,
        [
-         {"/ws/aerolinea", Aerolinea.Websocket.Handler, []}
+         {"/ws/aerolinea", Aerolinea.Websocket.Handler, []},
+         {"/ws/usuario", Usuario.Websocket.Handler, []}
        ]}
     ]
   end
