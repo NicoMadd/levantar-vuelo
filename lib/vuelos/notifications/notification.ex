@@ -23,8 +23,6 @@ defmodule Notification do
   def notificar_cierre({vuelo_id}) do
     Logger.info("Notificar cierre #{vuelo_id}")
 
-    vuelo_id
-    |> Reservas.Registry.find_reservas_by_vuelo()
-    |> Enum.each(fn {pid_reserva, _} -> Reserva.notificar_cierre(pid_reserva) end)
+    Reservas.Registry.cerrar_reservas(vuelo_id)
   end
 end
