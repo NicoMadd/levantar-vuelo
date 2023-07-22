@@ -7,9 +7,8 @@ defmodule LevantarVuelo.Application do
     children = [
       Vuelos.Supervisor,
       Alertas.Supervisor,
-      Reservas.Supervisor
-      # Aerolinea.Interface.Supervisor,
-      # Usuario.Interface.Supervisor
+      Reservas.Supervisor,
+      API.Supervisor
     ]
 
     opts = [strategy: :one_for_one]
