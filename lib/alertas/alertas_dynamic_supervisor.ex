@@ -1,18 +1,24 @@
 defmodule Alertas.DynamicSupervisor do
-  use DynamicSupervisor
+  use Horde.DynamicSupervisor
 
-  def start_link(_init) do
-    DynamicSupervisor.start_link(__MODULE__, :ok, name: __MODULE__)
+  def start_link(opts) do
+    Horde.DynamicSupervisor.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def init(:ok) do
-    DynamicSupervisor.init(strategy: :one_for_one)
+  def init(init_arg) do
+    [members: members(), strategy: :one_for_one, distribution_strategy: Horde.UniformQuorumDistribution]
+    |> Keyword.merge(init_arg)
+    |> Horde.DynamicSupervisor.init()
   end
 
   def start_child(alerta_id, type) do
     spec = {Alerta, {alerta_id, type}}
 
-    DynamicSupervisor.start_child(__MODULE__, spec)
+    Horde.DynamicSupervisor.start_child(__MODULE__, spec)
+  end
+
+  defp members do
+    Enum.map(Node.list([:this, :visible]), &{__MODULE__, &1})
   end
 
   # Cliente
