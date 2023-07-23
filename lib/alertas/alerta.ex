@@ -5,7 +5,7 @@ defmodule Alerta do
   @registry Alertas.Registry
   def start_link({alerta_id, type}) do
     GenServer.start_link(__MODULE__, {alerta_id, type},
-      name: {:via, Registry, {@registry, alerta_id}}
+      name: {:via, Horde.Registry, {@registry, alerta_id}}
     )
   end
 
