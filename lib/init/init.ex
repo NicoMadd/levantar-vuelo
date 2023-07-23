@@ -42,4 +42,20 @@ defmodule Init do
 
     Alertas.DynamicSupervisor.crear_alerta_por_fecha(2, ~D[2023-05-18])
   end
+
+  def init_alertas2() do
+    Alertas.DynamicSupervisor.crear_alerta_por_mes(1, 1)
+    Alertas.DynamicSupervisor.crear_alerta_por_mes(1, 3)
+    Alertas.DynamicSupervisor.crear_alerta_por_mes(2, 7)
+    Alertas.DynamicSupervisor.crear_alerta_por_mes(2, 8)
+    Alertas.DynamicSupervisor.crear_alerta_por_mes(2, 9)
+
+    Alertas.DynamicSupervisor.crear_alerta_por_destino(1, "EZE")
+    Alertas.DynamicSupervisor.crear_alerta_por_destino(2, "EZE")
+
+    Alertas.DynamicSupervisor.crear_alerta_por_origen(1, "USH")
+
+    Alertas.DynamicSupervisor.crear_alerta_por_fecha(2, ~D[2023-05-18])
+  end
+
 end
