@@ -6,7 +6,12 @@ defmodule Alertas.DynamicSupervisor do
   end
 
   def init(init_arg) do
-    [members: members(), strategy: :one_for_one, distribution_strategy: Horde.UniformQuorumDistribution]
+    [
+      members: members(),
+      strategy: :one_for_one,
+      distribution_strategy: Horde.UniformQuorumDistribution,
+      process_redistribution: :active
+    ]
     |> Keyword.merge(init_arg)
     |> Horde.DynamicSupervisor.init()
   end
