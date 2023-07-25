@@ -1,27 +1,31 @@
 @startuml Secuencia Publicar Vuelo 
 actor Aerolinea
-participant Aerolina.Interface.Worker
-participant Vuelos.Worker
-database Vuelos.DB
-database Alertas.DB
-participant Alertas.Notifier
-participant Usuario.Interface.Worker
+participant Interface.Aerolinea
+participant Vuelos.DynamicSupervisor
+participant Vuelo
+participant Notification.Supervisor
+participant Notification
+database Alertas.Registry
+participant Alerta
+participant Interface.Usuario
 actor Usuario
 
-
-Aerolinea -> "Aerolina.Interface.Worker": Publicar vuelo
-"Aerolina.Interface.Worker" -> Vuelos.Worker: Publicar vuelo
-Vuelos.Worker -> Vuelos.DB: Agregar vuelo
-Vuelos.Worker -> "Aerolina.Interface.Worker": Vuelo agregado
-"Aerolina.Interface.Worker" -> Aerolinea: OK
-Vuelos.DB --> Alertas.Notifier: Notificar nuevo vuelo
-Alertas.Notifier -> Alertas.DB: Fetch de alertas
-Alertas.DB -> Alertas.Notifier: Devuelve alertas
-activate Alertas.Notifier
+Aerolinea -> "Interface.Aerolinea": Publicar vuelo
+"Interface.Aerolinea" -> Vuelos.DynamicSupervisor: Crear vuelo
+Vuelos.DynamicSupervisor -> Vuelo: Crear vuelo
+Vuelo -> Vuelo: send_after()
+Vuelo -> Vuelos.DynamicSupervisor: ok
+Vuelos.DynamicSupervisor -> Interface.Aerolinea: ok
+Interface.Aerolinea -> Aerolinea: ok
+Vuelo -> Notification.Supervisor: notificar vuelo
+Notification.Supervisor -> Notification: notificar vuelo
+Notification -> Alertas.Registry: fetch alertas interesados
+Alertas.Registry -> Notification: devolver alertas
+Notification -> Alerta: notificar nuevo vuelo
+activate Alerta
 note right: Evalua condiciones de alertas
-
-Alertas.Notifier -> Usuario.Interface.Worker: Notificar usuario de nuevo vuelo
-deactivate Alertas.Notifier
-Usuario.Interface.Worker -> Usuario: Nuevo vuelo publicado
+Alerta -> Interface.Usuario: notificar vuelo
+deactivate Alerta
+Interface.Usuario -> Usuario: notificar vuelo
 
 @enduml
