@@ -1,0 +1,17 @@
+@startuml Secuencia Reserva
+
+actor Usuario
+participant Interface.Usuarios
+participant Reservas.DynamicSupervisor
+participant Reserva
+database Reservas.Registry
+
+Usuario -> Interface.Usuarios: crear reserva
+Interface.Usuarios -> Reservas.DynamicSupervisor: crear reserva
+Reservas.DynamicSupervisor -> Reserva: iniciar proceso (vuelo, usuario)
+Reserva -> Reservas.Registry: registrar reserva del vuelo asociado al usuario
+Reserva -> Reservas.DynamicSupervisor: ok
+Reservas.DynamicSupervisor -> Interface.Usuarios: ok
+Interface.Usuarios -> Usuario: alerta creada
+
+@enduml
