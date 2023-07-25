@@ -1,21 +1,25 @@
-# LevantarVuelo
+# LevantarVuelo - TP IASC 1C2023
 
-## Requerimientos
+## Introducción
+__Enunciado__: https://drive.google.com/file/d/1z4H-VwM709zSUVZ5vj0ehP5XjaDDA_I9/view?usp=sharing
 
+| Grupo #3  |
+| -------------      |
+| Nicolás Madeo      |
+| Federico Larrea    |
+| Nahuel Gil Peña    |
+| Hugo Peykovich     |
+
+## Levantar el TP
+##### Requisitos
 -   Elixir 1.14.5
 
-## Como levantarlo
+##### Procedimientos
+1. Ejecutar `mix deps.get` para instalar las dependencias
+2. Ejecutar `iex -S mix`
 
-1. Ejecutar _mix deps.get_
-2. Ejecutar _iex -S mix_
+## Diagrama de Arquitectura
 
-## Arquitectura
+![diagrama de arquitectura](./diagrams/diagrama_arquitectura.png)
 
-![Alt text](./diagrama_arquitectura.png)
-<img src="./diagrams/diagrama_arquitectura.png">
-
-## Documentacion
-
-Para la documentacion se uso _plantuml_ en el diseño de los diagramas. Para poder verlos, acceder a la carpeta **diagrams** dentro del repositorio.
-
-**TODO**
+> NOTA: en la carpeta __diagrams__ se encuentran el archivo .png de la arquitectura y algunos diagramas de secuencia de las interacciones más relevantes.
