@@ -1,5 +1,6 @@
 defmodule Reservas.DynamicSupervisor do
   use DynamicSupervisor
+  require Logger
 
   def start_link(_init) do
     DynamicSupervisor.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -12,6 +13,8 @@ defmodule Reservas.DynamicSupervisor do
   def start_child(vuelo_id, usuario_id) do
     spec = {Reserva, {vuelo_id, usuario_id}}
 
+    Logger.info("Creando reserva sobre el vuelo #{vuelo_id} para el usuario #{usuario_id}")
+    
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 
