@@ -4,11 +4,20 @@ defmodule LevantarVuelo.Application do
   def start(_start_type, _start_args) do
     IO.puts("Arranca")
 
+    topologies = [
+      myapp: [
+        strategy: Cluster.Strategy.Gossip
+      ]
+    ]
+
     children = [
+      # libcluster
+      {Cluster.Supervisor, [topologies, [name: MyApp.ClusterSupervisor]]},
+      Node.Observer.Supervisor,
       Vuelos.Supervisor,
       Alertas.Supervisor,
-      Reservas.Supervisor,
-      API.Supervisor
+      Reservas.Supervisor
+      # API.Supervisor
     ]
 
     opts = [strategy: :one_for_one]
