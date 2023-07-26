@@ -15,6 +15,8 @@ defmodule Vuelos.DynamicSupervisor do
     spec = {Vuelo, {vuelo_id, {tipo_avion, datetime, origen, destino, tiempo_limite}}}
 
     DynamicSupervisor.start_child(__MODULE__, spec)
+
+    {:ok, vuelo_id}
   end
 
   # Cliente

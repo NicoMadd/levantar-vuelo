@@ -58,4 +58,27 @@ defmodule Init do
     Alertas.DynamicSupervisor.crear_alerta_por_fecha(2, ~D[2023-05-18])
   end
 
+  def init_vuelo_y_reservas() do
+    {:ok, today} = DateTime.now("Etc/UTC")
+
+    fecha_despegue = DateTime.add(today, 1, :day)
+
+    {:ok, vuelo_id} =  Vuelos.DynamicSupervisor.publicar_vuelo(:embraer190, fecha_despegue, "EZE", "USU", 200)
+
+
+    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 0)
+    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 1)
+    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 2)
+    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 3)
+    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 4)
+    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 5)
+    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 6)
+    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 7)
+
+    [{pid, _}] = Vuelos.Registry.find(vuelo_id)
+
+    Process.send(pid, :cerrar_vuelo, [])
+
+  end
+  
 end
