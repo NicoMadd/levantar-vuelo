@@ -7,9 +7,9 @@ defmodule Vuelos.Supervisor do
 
   def init(_init_arg) do
     children = [
+      Vuelos.Registry,
       Vuelos.DynamicSupervisor,
-      Notification.Supervisor,
-      Vuelos.Registry
+      Notification.Supervisor
     ]
 
     opts = [strategy: :one_for_one]
