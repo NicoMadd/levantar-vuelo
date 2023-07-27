@@ -6,7 +6,7 @@ defmodule Entidades.Usuario.Supervisor do
   end
 
   def init(_init_arg) do
-    children = [Entidades.Usuario.DynamicSupervisor, Entidades.Usuario.Registry]
+    children = [Entidades.Usuario.Registry, Entidades.Usuario.DynamicSupervisor]
     opts = [strategy: :one_for_one]
 
     Supervisor.init(children, opts)
