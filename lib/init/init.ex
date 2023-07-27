@@ -67,13 +67,7 @@ defmodule Init do
 
     [{pid, _}] = Reservas.Registry.find_reserva_by_vuelo(vuelo_id)
 
-    {:ok, usuario1} = Entidades.Usuario.DynamicSupervisor.crear_usuario("juan")
-    {:ok, usuario2} = Entidades.Usuario.DynamicSupervisor.crear_usuario("pedro")
-    {:ok, usuario3} = Entidades.Usuario.DynamicSupervisor.crear_usuario("pablo")
 
-    GenServer.call(pid, {:reservar, usuario1})
-    GenServer.call(pid, {:reservar, usuario2})
-    GenServer.call(pid, {:reservar, usuario3})
     # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 0)
     # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 1)
     # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 2)
@@ -82,11 +76,27 @@ defmodule Init do
     # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 5)
     # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 6)
     # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 7)
+    {:ok, vuelo_id}
+  end
 
+  def crear_usuarios_y_reservar(vuelo_id) do
+    {:ok, usuario1} = Entidades.Usuario.DynamicSupervisor.crear_usuario("juan")
+    {:ok, usuario2} = Entidades.Usuario.DynamicSupervisor.crear_usuario("pedro")
+    {:ok, usuario3} = Entidades.Usuario.DynamicSupervisor.crear_usuario("pablo")
+
+    [{pid, _}] = Reservas.Registry.find_reserva_by_vuelo(vuelo_id)
+
+    GenServer.call(pid, {:reservar, usuario1})
+    GenServer.call(pid, {:reservar, usuario2})
+    GenServer.call(pid, {:reservar, usuario3})
+    
+    {:ok, []}
+  end
+
+  def cerrar_vuelo(vuelo_id) do
     [{pid, _}] = Vuelos.Registry.find(vuelo_id)
 
     send(pid, :cerrar_vuelo)
-
   end
 
 end
