@@ -20,14 +20,24 @@ defmodule NodeObserver do
   """
   def handle_info({:nodedown, node, _node_type}, state) do
     Logger.info("---- Node down: #{node} ----")
-    set_members(Alertas.Registry)
-    set_members(Alertas.DynamicSupervisor)
-    set_members(Reservas.Registry)
-    set_members(Reservas.DynamicSupervisor)
-    set_members(Entidades.Usuario.Registry)
+
+    :telemetry.execute(
+      [:node, :event, :down],
+      %{node_affected: node},
+      %{}
+    )
+
+    # Supervisors
     set_members(Entidades.Usuario.DynamicSupervisor)
-    set_members(Vuelos.Registry)
+    set_members(Alertas.DynamicSupervisor)
+    set_members(Reservas.DynamicSupervisor)
     set_members(Vuelos.DynamicSupervisor)
+
+    # Registries
+    set_members(Vuelos.Registry)
+    set_members(Reservas.Registry)
+    set_members(Entidades.Usuario.Registry)
+    set_members(Alertas.Registry)
 
     {:noreply, state}
   end
@@ -35,14 +45,23 @@ defmodule NodeObserver do
   @impl GenServer
   def handle_info({:nodeup, node, _node_type}, state) do
     Logger.info("---- Node up: #{node} ----")
-    set_members(Alertas.Registry)
-    set_members(Alertas.DynamicSupervisor)
-    set_members(Reservas.Registry)
-    set_members(Reservas.DynamicSupervisor)
-    set_members(Entidades.Usuario.Registry)
+
+    :telemetry.execute(
+      [:node, :event, :up],
+      %{node_affected: node},
+      %{}
+    )
+    # Supervisors
     set_members(Entidades.Usuario.DynamicSupervisor)
-    set_members(Vuelos.Registry)
+    set_members(Alertas.DynamicSupervisor)
+    set_members(Reservas.DynamicSupervisor)
     set_members(Vuelos.DynamicSupervisor)
+
+    # Registries
+    set_members(Vuelos.Registry)
+    set_members(Reservas.Registry)
+    set_members(Entidades.Usuario.Registry)
+    set_members(Alertas.Registry)
 
     {:noreply, state}
   end
