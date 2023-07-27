@@ -6,20 +6,21 @@ defmodule LevantarVuelo.Application do
 
     children = [
       ## Horde ##
-      {Cluster.Supervisor, [topologies(), [name: ClusterSupervisor]]},
-      HordeRegistry,
-      {HordeSupervisor,
-       [
-         strategy: :one_for_one,
-         distribution_strategy: Horde.UniformQuorumDistribution,
-         process_redistribution: :active
-       ]},
+      {Cluster.Supervisor, [topologies(), [name: LevantarVuelo.ClusterSupervisor]]},
+      # HordeRegistry,
+      # {HordeSupervisor,
+      #  [
+      #    strategy: :one_for_one,
+      #    distribution_strategy: Horde.UniformQuorumDistribution,
+      #    process_redistribution: :active
+      #  ]},
       NodeObserver.Supervisor,
 
       ## Basics ##
       Vuelos.Supervisor,
       Alertas.Supervisor,
-      Reservas.Supervisor
+      Reservas.Supervisor,
+      Entidades.Usuario.Supervisor,
       # API.Supervisor
     ]
 
