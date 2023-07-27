@@ -16,14 +16,14 @@ defmodule Alertas.DynamicSupervisor do
     |> Horde.DynamicSupervisor.init()
   end
 
+  defp members do
+    Enum.map(Node.list([:this, :visible]), &{__MODULE__, &1})
+  end
+
   def start_child(alerta_id, type) do
     spec = {Alerta, {alerta_id, type}}
 
     Horde.DynamicSupervisor.start_child(__MODULE__, spec)
-  end
-
-  defp members do
-    Enum.map(Node.list([:this, :visible]), &{__MODULE__, &1})
   end
 
   # Cliente
