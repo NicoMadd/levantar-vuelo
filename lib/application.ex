@@ -14,6 +14,7 @@ defmodule LevantarVuelo.Application do
       # libcluster
       {Cluster.Supervisor, [topologies, [name: MyApp.ClusterSupervisor]]},
       Node.Observer.Supervisor,
+      Replica.Manager.Supervisor,
       Vuelos.Supervisor,
       Alertas.Supervisor,
       Reservas.Supervisor
