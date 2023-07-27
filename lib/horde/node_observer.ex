@@ -20,8 +20,14 @@ defmodule NodeObserver do
   """
   def handle_info({:nodedown, node, _node_type}, state) do
     Logger.info("---- Node down: #{node} ----")
-    set_members(HordeRegistry)
-    set_members(HordeSupervisor)
+    set_members(Alertas.Registry)
+    set_members(Alertas.DynamicSupervisor)
+    set_members(Reservas.Registry)
+    set_members(Reservas.DynamicSupervisor)
+    set_members(Entidades.Usuario.Registry)
+    set_members(Entidades.Usuario.DynamicSupervisor)
+    set_members(Vuelos.Registry)
+    set_members(Vuelos.DynamicSupervisor)
 
     {:noreply, state}
   end
@@ -29,13 +35,19 @@ defmodule NodeObserver do
   @impl GenServer
   def handle_info({:nodeup, node, _node_type}, state) do
     Logger.info("---- Node up: #{node} ----")
-    set_members(HordeRegistry)
-    set_members(HordeSupervisor)
+    set_members(Alertas.Registry)
+    set_members(Alertas.DynamicSupervisor)
+    set_members(Reservas.Registry)
+    set_members(Reservas.DynamicSupervisor)
+    set_members(Entidades.Usuario.Registry)
+    set_members(Entidades.Usuario.DynamicSupervisor)
+    set_members(Vuelos.Registry)
+    set_members(Vuelos.DynamicSupervisor)
 
     {:noreply, state}
   end
 
-  defp set_members(name) do
+   defp set_members(name) do
     members = Enum.map([Node.self() | Node.list()], &{name, &1})
 
     :ok = Horde.Cluster.set_members(name, members)
