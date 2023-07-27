@@ -36,6 +36,14 @@ defmodule Alertas.Registry do
     end
   end
 
+  def crear_alerta(alerta_id, type) do
+    case Alertas.DynamicSupervisor.start_child(alerta_id, type) do
+      {:ok, pid} -> {:ok, pid}
+      {:error, {:already_started, pid}} -> {:ok, pid}
+      {:error, msg} -> {:error, "An error occurred: #{msg}"}
+    end
+  end
+
   def alerta_exists?(alerta_id) do
     # when is_integer(alerta_id) and alerta_id >= 1 and alerta_id <= 12 do
     case Horde.Registry.lookup(__MODULE__, alerta_id) do

@@ -29,22 +29,25 @@ defmodule Alertas.DynamicSupervisor do
   # Cliente
 
   def crear_alerta_por_mes(usuario_id, mes) do
-    {:ok, pid} = Alertas.Registry.find_or_create_alerta(mes, :mes)
-    Alerta.suscribir(pid, usuario_id)
+    crear_alerta(usuario_id, {mes, :mes})
   end
 
   def crear_alerta_por_fecha(usuario_id, fecha) do
-    {:ok, pid} = Alertas.Registry.find_or_create_alerta(fecha, :fecha)
-    Alerta.suscribir(pid, usuario_id)
+    crear_alerta(usuario_id, {fecha, :fecha})
   end
 
   def crear_alerta_por_origen(usuario_id, origen) do
-    {:ok, pid} = Alertas.Registry.find_or_create_alerta(origen, :origen)
-    Alerta.suscribir(pid, usuario_id)
+    crear_alerta(usuario_id, {origen, :origen})
   end
 
   def crear_alerta_por_destino(usuario_id, destino) do
-    {:ok, pid} = Alertas.Registry.find_or_create_alerta(destino, :destino)
-    Alerta.suscribir(pid, usuario_id)
+    crear_alerta(usuario_id, {destino, :destino})
   end
+
+  # Private
+
+  defp crear_alerta(usuario_id, type) do
+    Task.Supervisor.start_child(Alertas.Suscripcion.Supervisor, Alertas.Suscripcion, :suscribir, [usuario_id, type])
+  end
+
 end
