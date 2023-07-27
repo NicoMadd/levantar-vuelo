@@ -7,7 +7,7 @@ defmodule Replica.Manager.Supervisor do
 
   def init(_init_arg) do
     children = [
-      {Replica.Manager, []}
+      {Replica.Manager, [Replica.Manager]}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

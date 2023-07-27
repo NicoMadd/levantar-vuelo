@@ -1,6 +1,9 @@
 defmodule Replica.Manager do
   use GenServer
 
+  def __using__([]) do
+  end
+
   @doc """
   init define
   - un timestamp para indicar prioridad sobre cada nodo llamado identifier.
@@ -15,18 +18,22 @@ defmodule Replica.Manager do
       "Nodo " <> Atom.to_string(Node.self()) <> " levantado con identificador " <> identifier
     )
 
-    {:ok, {identifier, {identifier, []}}}
+    {:ok, {identifier, {identifier, []}, []}}
   end
 
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  def start_link([name]) do
+    GenServer.start_link(__MODULE__, [], name: name)
   end
 
   @doc """
   
   Neighbour: {node, nb_identifier}
   """
-  def handle_call({:add_neighbour, new_neighbour}, _from, {identifier, {_old_master, neighbours}}) do
+  def handle_call(
+        {:add_neighbour, new_neighbour},
+        _from,
+        {identifier, {_old_master, neighbours}, observers}
+      ) do
     # Check if node is the new master ordering the identifier
     master = select_master(identifier, new_neighbour, neighbours)
 
@@ -36,23 +43,43 @@ defmodule Replica.Manager do
       IO.puts("Nuevo master " <> master)
     end
 
-    {:reply, :ok, {identifier, {master, [new_neighbour | neighbours]}}}
+    {:reply, :ok, {identifier, {master, [new_neighbour | neighbours]}, observers}}
   end
 
-  def handle_call({:remove_neighbour, fallen_node}, _from, {identifier, {master, neighbours}}) do
+  def handle_call(
+        {:remove_neighbour, fallen_node},
+        _from,
+        {identifier, {master, neighbours}, observers}
+      ) do
     new_neighbours =
       neighbours
       |> Enum.filter(fn {node, _} -> node == fallen_node end)
 
-    {:reply, :ok, {identifier, {master, new_neighbours}}}
+    {:reply, :ok, {identifier, {master, new_neighbours}, observers}}
   end
 
-  def handle_call(:get_identifier, _from, {identifier, context}) do
-    {:reply, identifier, {identifier, context}}
+  def handle_call(:get_identifier, _from, {identifier, context, observers}) do
+    {:reply, identifier, {identifier, context, observers}}
   end
 
-  def handle_call(:get_neighbours, _from, {identifier, {master, neighbours}}) do
-    {:reply, neighbours, {identifier, {master, neighbours}}}
+  def handle_call(:get_neighbours, _from, {identifier, {master, neighbours}, observers}) do
+    {:reply, neighbours, {identifier, {master, neighbours}, observers}}
+  end
+
+  def handle_call(
+        {:add_observer, new_observer},
+        _from,
+        {identifier, context, observers}
+      ) do
+    {:reply, :ok, {identifier, context, [new_observer | observers]}}
+  end
+
+  def handle_call(
+        {:remove_observer, observer},
+        _from,
+        {identifier, context, observers}
+      ) do
+    {:reply, :ok, {identifier, context, List.delete(observers, observer)}}
   end
 
   def handle_call(:ping, _from, state) do
@@ -83,6 +110,14 @@ defmodule Replica.Manager do
 
   def get_neighbours(pid) do
     GenServer.call(pid, :get_neighbours)
+  end
+
+  def remove_observer(pid, observer) do
+    GenServer.call(pid, {:add_observer, observer})
+  end
+
+  def add_observer(pid, observer) do
+    GenServer.call(pid, {:remove_observer, observer})
   end
 
   # Private functions
