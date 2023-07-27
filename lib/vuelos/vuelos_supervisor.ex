@@ -9,7 +9,7 @@ defmodule Vuelos.Supervisor do
     children = [
       Vuelos.DynamicSupervisor,
       Notification.Supervisor,
-      Vuelos.Registry.Supervisor
+      Vuelos.Registry
     ]
 
     opts = [strategy: :one_for_one]
