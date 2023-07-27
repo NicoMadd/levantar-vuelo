@@ -1,7 +1,8 @@
-defmodule Entidades.UsuarioRegistry do
+defmodule Entidades.Usuario.Registry do
+  use Horde.Registry
 
   def start_link(_init) do
-    Registry.start_link(keys: :unique, name: __MODULE__)
+    Horde.Registry.start_link(__MODULE__, [keys: :unique], name: __MODULE__)
   end
 
   def child_spec(opts) do
@@ -14,12 +15,19 @@ defmodule Entidades.UsuarioRegistry do
     }
   end
 
-  def init(_init_arg) do
-    {:ok, []}
+  def init(init_arg) do
+    [members: members()]
+    |> Keyword.merge(init_arg)
+    |> Horde.Registry.init()
+  end
+
+  defp members() do
+    [Node.self() | Node.list()]
+    |> Enum.map(fn node -> {__MODULE__, node} end)
   end
 
   def find(usuario_id) do
-    Registry.lookup(__MODULE__, usuario_id)
+    Horde.Registry.lookup(__MODULE__, usuario_id)
   end
 
 end

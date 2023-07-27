@@ -1,21 +1,14 @@
-defmodule Entidades.Usuario.DynamicSupervisor do
-  use DynamicSupervisor
+defmodule Entidades.Usuario.Supervisor do
+  use Supervisor
 
-  def start_link(_init) do
-    DynamicSupervisor.start_link(__MODULE__, :ok, name: __MODULE__)
+  def start_link(init) do
+    Supervisor.start_link(__MODULE__, init, name: __MODULE__)
   end
 
-  def init(:ok) do
-    DynamicSupervisor.init(strategy: :one_for_one)
-  end
+  def init(_init_arg) do
+    children = [Entidades.Usuario.DynamicSupervisor, Entidades.Usuario.Registry]
+    opts = [strategy: :one_for_one]
 
-  def start_child(nombre) do
-    spec = {Usuario, {nombre}}
-
-    DynamicSupervisor.start_child(__MODULE__, spec)
-  end
-
-  def crear_usuario(nombre) do
-    start_child(nombre)
+    Supervisor.init(children, opts)
   end
 end
