@@ -19,6 +19,8 @@ defmodule Node.Observer do
       %{}
     )
 
+    Replica.Manager.remove_neighbor(Replica.Manager, node)
+
     {:noreply, state}
   end
 
@@ -29,7 +31,13 @@ defmodule Node.Observer do
       %{}
     )
 
-    IO.puts("asd")
+    IO.puts("Nuevo nodo")
+    IO.inspect(node)
+
+    # Get new node identifier
+    node_identifier = Replica.Manager.get_identifier({Replica.Manager, node})
+
+    Replica.Manager.add_neighbor(Replica.Manager, {node, node_identifier})
 
     {:noreply, state}
   end

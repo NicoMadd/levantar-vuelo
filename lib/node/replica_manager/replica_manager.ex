@@ -41,12 +41,20 @@ defmodule Replica.Manager do
     {:reply, :ok, {identifier, {master, [new_neighbour | neighbours]}}}
   end
 
-  def handle_call({:remove_neighbour, neighbour_node}, _from, {identifier, neighbours}) do
-    {:reply, :ok, {identifier, List.delete(neighbours, neighbour_node)}}
+  def handle_call({:remove_neighbour, fallen_node}, _from, {identifier, {master, neighbours}}) do
+    new_neighbours =
+      neighbours
+      |> Enum.filter(fn {node, _} -> node == fallen_node end)
+
+    {:reply, :ok, {identifier, {master, new_neighbours}}}
   end
 
   def handle_call(:get_identifier, _from, {identifier, context}) do
     {:reply, identifier, {identifier, context}}
+  end
+
+  def handle_call(:get_neighbours, _from, {identifier, {master, neighbours}}) do
+    {:reply, neighbours, {identifier, {master, neighbours}}}
   end
 
   def handle_call(:ping, _from, state) do
@@ -65,13 +73,18 @@ defmodule Replica.Manager do
 
   @doc """
   Remove a neighbour
+  Solo necesito el nodo, no es posible conseguir el identifier ya que el nodo esta caido
   """
-  def remove_neighbor(pid, neighbour_node) do
-    GenServer.call(pid, {:remove_neighbour, neighbour_node})
+  def remove_neighbor(pid, node) do
+    GenServer.call(pid, {:remove_neighbour, node})
   end
 
   def get_identifier(pid) do
     GenServer.call(pid, :get_identifier)
+  end
+
+  def get_neighbours(pid) do
+    GenServer.call(pid, :get_neighbours)
   end
 
   # Private functions
