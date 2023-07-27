@@ -14,14 +14,15 @@ defmodule LevantarVuelo.Application do
       #    distribution_strategy: Horde.UniformQuorumDistribution,
       #    process_redistribution: :active
       #  ]},
-      NodeObserver.Supervisor,
-
       ## Basics ##
       Vuelos.Supervisor,
       Alertas.Supervisor,
       Reservas.Supervisor,
       Entidades.Usuario.Supervisor,
       # API.Supervisor
+
+      ## Observer ##
+      NodeObserver.Supervisor,
     ]
 
     opts = [strategy: :one_for_one]
