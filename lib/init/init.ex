@@ -65,20 +65,28 @@ defmodule Init do
 
     {:ok, vuelo_id} =  Vuelos.DynamicSupervisor.publicar_vuelo(:embraer190, fecha_despegue, "EZE", "USU", 200)
 
+    [{pid, _}] = Reservas.Registry.find_reserva_by_vuelo(vuelo_id)
 
-    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 0)
-    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 1)
-    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 2)
-    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 3)
-    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 4)
-    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 5)
-    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 6)
-    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 7)
+    {:ok, usuario1} = Entidades.Usuario.DynamicSupervisor.crear_usuario("juan")
+    {:ok, usuario2} = Entidades.Usuario.DynamicSupervisor.crear_usuario("pedro")
+    {:ok, usuario3} = Entidades.Usuario.DynamicSupervisor.crear_usuario("pablo")
+
+    GenServer.call(pid, {:reservar, usuario1})
+    GenServer.call(pid, {:reservar, usuario2})
+    GenServer.call(pid, {:reservar, usuario3})
+    # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 0)
+    # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 1)
+    # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 2)
+    # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 3)
+    # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 4)
+    # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 5)
+    # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 6)
+    # Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id, 7)
 
     [{pid, _}] = Vuelos.Registry.find(vuelo_id)
 
-    Process.send(pid, :cerrar_vuelo, [])
+    send(pid, :cerrar_vuelo)
 
   end
-  
+
 end
