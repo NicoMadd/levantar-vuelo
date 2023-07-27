@@ -1,8 +1,6 @@
 defmodule Replica.Manager do
   use GenServer
 
-  @heartbeat_delay 5000
-
   @doc """
   init define
   - un timestamp para indicar prioridad sobre cada nodo llamado identifier.
