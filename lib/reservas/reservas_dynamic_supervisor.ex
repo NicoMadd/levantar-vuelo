@@ -1,21 +1,32 @@
 defmodule Reservas.DynamicSupervisor do
-  use DynamicSupervisor
+  use Horde.DynamicSupervisor
   require Logger
 
-  def start_link(_init) do
-    DynamicSupervisor.start_link(__MODULE__, :ok, name: __MODULE__)
+  def start_link(opts) do
+    Horde.DynamicSupervisor.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def init(:ok) do
-    DynamicSupervisor.init(strategy: :one_for_one)
+  def init(init_arg) do
+    [
+      members: members(),
+      strategy: :one_for_one,
+      distribution_strategy: Horde.UniformQuorumDistribution,
+      process_redistribution: :active
+    ]
+    |> Keyword.merge(init_arg)
+    |> Horde.DynamicSupervisor.init()
   end
 
-  def start_child(vuelo_id, usuario_id) do
-    spec = {Reserva, {vuelo_id, usuario_id}}
+  defp members do
+    Enum.map(Node.list([:this, :visible]), &{__MODULE__, &1})
+  end
 
-    Logger.info("Creando reserva sobre el vuelo #{vuelo_id} para el usuario #{usuario_id}")
-    
-    DynamicSupervisor.start_child(__MODULE__, spec)
+  def start_child(vuelo_id) do
+    spec = {Reserva, {vuelo_id}}
+
+    # Logger.info("Creando reserva sobre el vuelo #{vuelo_id} para el usuario #{usuario_id}")
+
+    Horde.DynamicSupervisor.start_child(__MODULE__, spec)
   end
 
   # Cliente
@@ -28,7 +39,7 @@ defmodule Reservas.DynamicSupervisor do
   destino: string
   tiempo_limite: number: en segundos
   """
-  def iniciar_reserva(vuelo_id, usuario_id) do
-    start_child(vuelo_id, usuario_id)
+  def iniciar_reserva(vuelo_id) do
+    start_child(vuelo_id)
   end
 end
