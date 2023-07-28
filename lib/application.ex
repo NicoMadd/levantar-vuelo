@@ -5,23 +5,19 @@ defmodule LevantarVuelo.Application do
     IO.puts("Arranca")
 
     children = [
-      ## Horde ##
+      ## Horde Cluster ##
       {Cluster.Supervisor, [topologies(), [name: LevantarVuelo.ClusterSupervisor]]},
-      # HordeRegistry,
-      # {HordeSupervisor,
-      #  [
-      #    strategy: :one_for_one,
-      #    distribution_strategy: Horde.UniformQuorumDistribution,
-      #    process_redistribution: :active
-      #  ]},
+
       ## Basics ##
       Vuelos.Supervisor,
       Alertas.Supervisor,
       Reservas.Supervisor,
       Entidades.Usuario.Supervisor,
+
+      ## API ##
       # API.Supervisor
 
-      ## Observer ##
+      ## Node Observer ##
       NodeObserver.Supervisor,
     ]
 
