@@ -9,6 +9,7 @@ defmodule Alertas.DynamicSupervisor do
     [
       members: members(),
       strategy: :one_for_one,
+      shutdown: 1000,
       distribution_strategy: Horde.UniformQuorumDistribution,
       process_redistribution: :active
     ]
@@ -47,7 +48,9 @@ defmodule Alertas.DynamicSupervisor do
   # Private
 
   defp crear_alerta(usuario_id, type) do
-    Task.Supervisor.start_child(Alertas.Suscripcion.Supervisor, Alertas.Suscripcion, :suscribir, [usuario_id, type])
+    Task.Supervisor.start_child(Alertas.Suscripcion.Supervisor, Alertas.Suscripcion, :suscribir, [
+      usuario_id,
+      type
+    ])
   end
-
 end

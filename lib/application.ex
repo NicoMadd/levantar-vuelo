@@ -13,12 +13,13 @@ defmodule LevantarVuelo.Application do
       Alertas.Supervisor,
       Reservas.Supervisor,
       Entidades.Usuario.Supervisor,
+      State.Manager.Supervisor,
 
       ## API ##
       # API.Supervisor
 
       ## Node Observer ##
-      NodeObserver.Supervisor,
+      NodeObserver.Supervisor
     ]
 
     opts = [strategy: :one_for_one]
