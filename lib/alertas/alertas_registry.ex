@@ -27,15 +27,6 @@ defmodule Alertas.Registry do
     |> Enum.map(fn node -> {__MODULE__, node} end)
   end
 
-  def find_or_create_alerta(alerta_id, type) do
-    if alerta_exists?(alerta_id) do
-      {:ok, Horde.Registry.lookup(__MODULE__, alerta_id) |> List.first() |> elem(0)}
-    else
-      {_, pid} = alerta_id |> Alertas.DynamicSupervisor.start_child(type)
-      {:ok, pid}
-    end
-  end
-
   def crear_alerta(alerta_id, type) do
     case Alertas.DynamicSupervisor.start_child(alerta_id, type) do
       {:ok, pid} -> {:ok, pid}
@@ -44,11 +35,4 @@ defmodule Alertas.Registry do
     end
   end
 
-  def alerta_exists?(alerta_id) do
-    # when is_integer(alerta_id) and alerta_id >= 1 and alerta_id <= 12 do
-    case Horde.Registry.lookup(__MODULE__, alerta_id) do
-      [] -> false
-      _ -> true
-    end
-  end
 end
