@@ -4,9 +4,7 @@ defmodule Alerta do
 
   @registry Alertas.Registry
   def start_link({alerta_id, type}) do
-    GenServer.start_link(__MODULE__, {alerta_id, type},
-      name: via_tuple(alerta_id)
-    )
+    GenServer.start_link(__MODULE__, {alerta_id, type}, name: via_tuple(alerta_id))
   end
 
   def via_tuple(alerta_id) do
@@ -14,7 +12,8 @@ defmodule Alerta do
   end
 
   def init({mes, :mes}) do
-    {:ok, {{mes, :mes}, []}}
+    Process.flag(:trap_exit, true)
+    {:ok, {{mes, :mes}, []}, {:continue, :load_state}}
   end
 
   def init({fecha, :fecha}) do
@@ -27,6 +26,23 @@ defmodule Alerta do
 
   def init({destino, :destino}) do
     {:ok, {{destino, :destino}, []}}
+  end
+
+  # terminate handle
+  def terminate(reason, state) do
+    # save state to Redis, DeltaCRDT, Postgres, Mysql, etc.
+    IO.puts("terminating alerta")
+    IO.inspect(state)
+  end
+
+  # handle load state
+  def handle_continue(:load_state, arg) do
+    {:noreply, load_state(arg)}
+  end
+
+  def load_state(arg) do
+    IO.puts("Loading state")
+    IO.inspect(arg)
   end
 
   # Handles
