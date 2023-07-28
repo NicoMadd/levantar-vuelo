@@ -1,8 +1,9 @@
 defmodule Vuelos.Registry do
+  use Horde.Registry
   require Logger
 
   def start_link(_init) do
-    Registry.start_link(keys: :unique, name: __MODULE__)
+    Horde.Registry.start_link(__MODULE__, [keys: :unique], name: __MODULE__)
   end
 
   def child_spec(opts) do
@@ -15,16 +16,23 @@ defmodule Vuelos.Registry do
     }
   end
 
-  def init(_init_arg) do
-    {:ok, []}
+  def init(init_arg) do
+    [members: members()]
+    |> Keyword.merge(init_arg)
+    |> Horde.Registry.init()
+  end
+
+  defp members() do
+    [Node.self() | Node.list()]
+    |> Enum.map(fn node -> {__MODULE__, node} end)
   end
 
   def find(vuelo_id) do
-    Registry.lookup(__MODULE__, vuelo_id)
+    Horde.Registry.lookup(__MODULE__, vuelo_id)
   end
 
   def vuelo_exists?(account_id) when is_integer(account_id) do
-    case Registry.lookup(__MODULE__, account_id) do
+    case Horde.Registry.lookup(__MODULE__, account_id) do
       [] -> false
       _ -> true
     end

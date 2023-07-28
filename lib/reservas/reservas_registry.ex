@@ -1,8 +1,9 @@
 defmodule Reservas.Registry do
+  use Horde.Registry
   require Logger
 
   def start_link(_init) do
-    Registry.start_link(keys: :duplicate, name: __MODULE__)
+    Horde.Registry.start_link(__MODULE__, [keys: :unique], name: __MODULE__)
   end
 
   def child_spec(opts) do
@@ -15,20 +16,27 @@ defmodule Reservas.Registry do
     }
   end
 
-  def init(_init_arg) do
-    {:ok, []}
+  def init(init_arg) do
+    [members: members()]
+    |> Keyword.merge(init_arg)
+    |> Horde.Registry.init()
   end
 
-  def find(vuelo_id, usuario_id) do
-    Registry.match(__MODULE__, vuelo_id, {usuario_id}) |> List.first
+  defp members() do
+    [Node.self() | Node.list()]
+    |> Enum.map(fn node -> {__MODULE__, node} end)
   end
 
-  def find_reservas_by_vuelo(vuelo_id) do
-    Registry.lookup(__MODULE__, vuelo_id)
+  # def find(vuelo_id, usuario_id) do
+  #   Horde.Registry.match(__MODULE__, vuelo_id, {usuario_id}) |> List.first
+  # end
+
+  def find_reserva_by_vuelo(vuelo_id) do
+    Horde.Registry.lookup(__MODULE__, vuelo_id)
   end
 
   def cerrar_reservas(vuelo_id) do
-    Registry.dispatch(Reservas.Registry, vuelo_id, fn entries ->
+    Horde.Registry.dispatch(Reservas.Registry, vuelo_id, fn entries ->
       for {pid, _} <- entries, do: Reserva.cerrar(pid)
     end)
   end

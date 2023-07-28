@@ -23,6 +23,8 @@ defmodule Notification do
   def notificar_cierre({vuelo_id}) do
     Logger.info("Notificar cierre #{vuelo_id}")
 
-    Reservas.Registry.cerrar_reservas(vuelo_id)
+    [{pid_reserva, _}] = Reservas.Registry.find_reserva_by_vuelo(vuelo_id)
+
+    send(pid_reserva, :cerrar_reservas)
   end
 end

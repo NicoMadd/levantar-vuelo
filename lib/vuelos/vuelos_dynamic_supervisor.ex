@@ -1,12 +1,23 @@
 defmodule Vuelos.DynamicSupervisor do
-  use DynamicSupervisor
+  use Horde.DynamicSupervisor
 
-  def start_link(_init) do
-    DynamicSupervisor.start_link(__MODULE__, :ok, name: __MODULE__)
+  def start_link(opts) do
+    Horde.DynamicSupervisor.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def init(:ok) do
-    DynamicSupervisor.init(strategy: :one_for_one)
+  def init(init_arg) do
+    [
+      members: members(),
+      strategy: :one_for_one,
+      distribution_strategy: Horde.UniformQuorumDistribution,
+      process_redistribution: :active
+    ]
+    |> Keyword.merge(init_arg)
+    |> Horde.DynamicSupervisor.init()
+  end
+
+  defp members do
+    Enum.map(Node.list([:this, :visible]), &{__MODULE__, &1})
   end
 
   def start_child({tipo_avion, datetime, origen, destino, tiempo_limite}) do
@@ -14,7 +25,7 @@ defmodule Vuelos.DynamicSupervisor do
 
     spec = {Vuelo, {vuelo_id, {tipo_avion, datetime, origen, destino, tiempo_limite}}}
 
-    DynamicSupervisor.start_child(__MODULE__, spec)
+    Horde.DynamicSupervisor.start_child(__MODULE__, spec)
 
     {:ok, vuelo_id}
   end
@@ -30,6 +41,10 @@ defmodule Vuelos.DynamicSupervisor do
   tiempo_limite: number: en segundos
   """
   def publicar_vuelo(tipo_avion, datetime, origen, destino, tiempo_limite) do
-    start_child({tipo_avion, datetime, origen, destino, tiempo_limite})
+    {:ok, vuelo_id} = start_child({tipo_avion, datetime, origen, destino, tiempo_limite})
+
+    Reservas.DynamicSupervisor.iniciar_reserva(vuelo_id)
+
+    {:ok, vuelo_id}
   end
 end
