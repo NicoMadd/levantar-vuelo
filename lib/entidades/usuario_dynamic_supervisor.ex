@@ -1,6 +1,5 @@
-defmodule Reservas.DynamicSupervisor do
+defmodule Entidades.Usuario.DynamicSupervisor do
   use Horde.DynamicSupervisor
-  require Logger
 
   def start_link(opts) do
     Horde.DynamicSupervisor.start_link(__MODULE__, opts, name: __MODULE__)
@@ -21,25 +20,15 @@ defmodule Reservas.DynamicSupervisor do
     Enum.map(Node.list([:this, :visible]), &{__MODULE__, &1})
   end
 
-  def start_child(vuelo_id) do
-    spec = {Reserva, {vuelo_id}}
-
-    # Logger.info("Creando reserva sobre el vuelo #{vuelo_id} para el usuario #{usuario_id}")
+  def start_child(id, nombre) do
+    spec = {Entidades.Usuario, {id, nombre}}
 
     Horde.DynamicSupervisor.start_child(__MODULE__, spec)
   end
 
-  # Cliente
-
-  @doc """
-  tipo_avion: string
-  cantidad_asientos: number
-  datetime: ~UTC datetime
-  origen: string
-  destino: string
-  tiempo_limite: number: en segundos
-  """
-  def iniciar_reserva(vuelo_id) do
-    start_child(vuelo_id)
+  def crear_usuario(nombre) do
+    id = App.Utils.random_string(10)
+    start_child(id, nombre)
+    {:ok, id}
   end
 end

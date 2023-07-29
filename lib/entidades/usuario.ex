@@ -1,7 +1,8 @@
 defmodule Entidades.Usuario do
   use GenServer
+  require Logger
 
-  @registry Usuario.Registry
+  @registry Entidades.Usuario.Registry
 
   def start_link(usuario_id, nombre) do
     GenServer.start_link(__MODULE__, {usuario_id, nombre},
@@ -10,7 +11,7 @@ defmodule Entidades.Usuario do
   end
 
   defp via_tuple(usuario_id) do
-    {:via, Registry, {@registry, usuario_id}}
+    {:via, Horde.Registry, {@registry, usuario_id}}
   end
 
   # child spec
@@ -22,8 +23,14 @@ defmodule Entidades.Usuario do
       restart: :transient
     }
   end
-  
-  def init(_args) do
-    {:ok, :initial_state}
+
+  def init({usuario_id, nombre}) do
+    {:ok, {usuario_id, nombre}}
+  end
+
+  def handle_cast({:cierre_reserva, vuelo_id}, {usuario_id, nombre}) do
+    Logger.info("Notificando usuario #{usuario_id} del cierre del vuelo #{vuelo_id}.")
+
+    {:noreply, {usuario_id, nombre}}
   end
 end

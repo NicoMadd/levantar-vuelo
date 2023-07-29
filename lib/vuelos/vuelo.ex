@@ -6,8 +6,12 @@ defmodule Vuelo do
 
   def start_link(vuelo_id, info) do
     GenServer.start_link(__MODULE__, {vuelo_id, info},
-      name: {:via, Registry, {@registry, vuelo_id}}
+      name: via_tuple(vuelo_id)
     )
+  end
+
+  def via_tuple(vuelo_id) do
+    {:via, Horde.Registry, {@registry, vuelo_id}}
   end
 
   # child spec

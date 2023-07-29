@@ -5,8 +5,12 @@ defmodule Alerta do
   @registry Alertas.Registry
   def start_link({alerta_id, type}) do
     GenServer.start_link(__MODULE__, {alerta_id, type},
-      name: {:via, Registry, {@registry, alerta_id}}
+      name: via_tuple(alerta_id)
     )
+  end
+
+  def via_tuple(alerta_id) do
+    {:via, Horde.Registry, {@registry, alerta_id}}
   end
 
   def init({mes, :mes}) do
@@ -34,7 +38,7 @@ defmodule Alerta do
   end
 
   def handle_cast({:notificar_usuarios, {vuelo_id, dato}}, {{mes, :mes}, lista}) do
-    if(dato == mes) do
+    if dato == mes do
       lista
       |> Enum.each(fn e ->
         IO.puts("Notificando usuario #{e} de un nuevo vuelo #{vuelo_id} en el mes #{mes}")
@@ -45,7 +49,7 @@ defmodule Alerta do
   end
 
   def handle_cast({:notificar_usuarios, {vuelo_id, dato}}, {{fecha, :fecha}, lista}) do
-    if(dato == fecha) do
+    if dato == fecha do
       lista
       |> Enum.each(fn e ->
         IO.puts("Notificando usuario #{e} de un nuevo vuelo #{vuelo_id} en la fecha #{fecha}")
@@ -56,7 +60,7 @@ defmodule Alerta do
   end
 
   def handle_cast({:notificar_usuarios, {vuelo_id, dato}}, {{destino, :destino}, lista}) do
-    if(dato == destino) do
+    if dato == destino do
       lista
       |> Enum.each(fn e ->
         IO.puts("Notificando usuario #{e} de un nuevo vuelo #{vuelo_id} en el destino #{destino}")
@@ -67,7 +71,7 @@ defmodule Alerta do
   end
 
   def handle_cast({:notificar_usuarios, {vuelo_id, dato}}, {{origen, :origen}, lista}) do
-    if(dato == origen) do
+    if dato == origen do
       lista
       |> Enum.each(fn e ->
         IO.puts("Notificando usuario #{e} de un nuevo vuelo #{vuelo_id} en el origen #{origen}")
