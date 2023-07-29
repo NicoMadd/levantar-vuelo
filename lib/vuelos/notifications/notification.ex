@@ -13,10 +13,13 @@ defmodule Notification do
 
     [{datetime, :fecha}, {month, :mes}, {origen, :origen}, {destino, :destino}]
     |> Enum.map(fn {alerta_id, type} ->
-      {alerta_id, Alertas.Registry.crear_alerta(alerta_id, type)}
+      {alerta_id, Alertas.Registry.find_alerta(alerta_id, type)}
     end)
-    |> Enum.each(fn {alerta_id, {_, pid_alerta}} ->
-      Alerta.notificar_usuarios(pid_alerta, {vuelo_id, alerta_id})
+    |> Enum.each(fn {alerta_id, {status, pid_alerta}} ->
+      case status do
+        :ok -> Alerta.notificar_usuarios(pid_alerta, {vuelo_id, alerta_id})
+        :error -> {}
+      end
     end)
   end
 
