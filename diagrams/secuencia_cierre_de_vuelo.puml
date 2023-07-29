@@ -11,8 +11,9 @@ actor Usuario
 Vuelo -> Notification.Supervisor: Notificar cierre de vuelo
 note left: Ya sea por el send_after \no el cierre computado se \nprocede con lo siguiente.
 Notification.Supervisor -> Notification: Notificar cierre
-Notification -> Reservas.Registry: cerrar reservas\n de un vuelo
-Reservas.Registry -> Reserva: cerrar reserva
+Notification -> Reservas.Registry: buscar las reservas\nde un vuelo
+Reservas.Registry -> Notification: devolver reservas
+Notification -> Reserva: cerrar reservas
 Reserva -> Interface.Usuarios: notificar cierre de vuelo
 Interface.Usuarios -> Usuario: notificar cierre de vuelo
 

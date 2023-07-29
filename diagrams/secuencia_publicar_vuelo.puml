@@ -3,6 +3,7 @@ actor Aerolinea
 participant Interface.Aerolinea
 participant Vuelos.DynamicSupervisor
 participant Vuelo
+participant Reservas.DynamicSupervisor
 participant Notification.Supervisor
 participant Notification
 database Alertas.Registry
@@ -13,6 +14,7 @@ actor Usuario
 Aerolinea -> "Interface.Aerolinea": Publicar vuelo
 "Interface.Aerolinea" -> Vuelos.DynamicSupervisor: Crear vuelo
 Vuelos.DynamicSupervisor -> Vuelo: Crear vuelo
+Vuelos.DynamicSupervisor -> Reservas.DynamicSupervisor: permitir reservas\nasociadas al vuelo
 Vuelo -> Vuelo: send_after()
 Vuelo -> Vuelos.DynamicSupervisor: ok
 Vuelos.DynamicSupervisor -> Interface.Aerolinea: ok
@@ -29,3 +31,4 @@ deactivate Alerta
 Interface.Usuario -> Usuario: notificar vuelo
 
 @enduml
+

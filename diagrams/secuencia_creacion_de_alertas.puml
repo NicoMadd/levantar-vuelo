@@ -3,6 +3,7 @@
 actor Usuario
 participant Interface.Usuarios
 participant Alertas.DynamicSupervisor
+participant Alertas.Suscripcion
 participant Alertas.Registry
 participant Alerta
 
@@ -10,45 +11,37 @@ participant Alerta
 
 Usuario -> Interface.Usuarios: crear alerta
 Interface.Usuarios -> Alertas.DynamicSupervisor: crear alerta por mes
-Alertas.DynamicSupervisor -> Alertas.Registry: crear la alerta
-Alertas.Registry -> Alertas.DynamicSupervisor: {:ok, pid}
-Alertas.DynamicSupervisor -> Alerta: suscribir al usuario a la alerta de mes
-Alerta -> Alertas.DynamicSupervisor: :ok
-Alertas.DynamicSupervisor -> Interface.Usuarios: alerta creada
-Interface.Usuarios -> Usuario: alerta creada
+Alertas.DynamicSupervisor -> Alertas.Suscripcion: suscribir usuario
+Alertas.Suscripcion -> Alertas.Registry: crear alerta por mes
+Alertas.Registry -> Alertas.Suscripcion: {:ok, pid}
+Alertas.Suscripcion -> Alerta: suscribir usuario\na la alerta (pid)
 
 == Alerta por fecha == 
 
 Usuario -> Interface.Usuarios: crear alerta
 Interface.Usuarios -> Alertas.DynamicSupervisor: crear alerta por fecha
-Alertas.DynamicSupervisor -> Alertas.Registry: crear la alerta
-Alertas.Registry -> Alertas.DynamicSupervisor: {:ok, pid}
-Alertas.DynamicSupervisor -> Alerta: suscribir al usuario a la alerta de fecha
-Alerta -> Alertas.DynamicSupervisor: :ok
-Alertas.DynamicSupervisor -> Interface.Usuarios: alerta creada
-Interface.Usuarios -> Usuario: alerta creada
+Alertas.DynamicSupervisor -> Alertas.Suscripcion: suscribir usuario
+Alertas.Suscripcion -> Alertas.Registry: crear alerta por fecha
+Alertas.Registry -> Alertas.Suscripcion: {:ok, pid}
+Alertas.Suscripcion -> Alerta: suscribir usuario\na la alerta (pid)
 
 
 == Alerta por destino == 
 
 Usuario -> Interface.Usuarios: crear alerta
 Interface.Usuarios -> Alertas.DynamicSupervisor: crear alerta por destino
-Alertas.DynamicSupervisor -> Alertas.Registry: crear la alerta
-Alertas.Registry -> Alertas.DynamicSupervisor: {:ok, pid}
-Alertas.DynamicSupervisor -> Alerta: suscribir al usuario a la alerta de destino
-Alerta -> Alertas.DynamicSupervisor: :ok
-Alertas.DynamicSupervisor -> Interface.Usuarios: alerta creada
-Interface.Usuarios -> Usuario: alerta creada
+Alertas.DynamicSupervisor -> Alertas.Suscripcion: suscribir usuario
+Alertas.Suscripcion -> Alertas.Registry: crear alerta por destino
+Alertas.Registry -> Alertas.Suscripcion: {:ok, pid}
+Alertas.Suscripcion -> Alerta: suscribir usuario\na la alerta (pid)
 
 == Alerta por origen == 
 
 Usuario -> Interface.Usuarios: crear alerta
 Interface.Usuarios -> Alertas.DynamicSupervisor: crear alerta por origen
-Alertas.DynamicSupervisor -> Alertas.Registry: crear la alerta
-Alertas.Registry -> Alertas.DynamicSupervisor: {:ok, pid}
-Alertas.DynamicSupervisor -> Alerta: suscribir al usuario a la alerta de origen
-Alerta -> Alertas.DynamicSupervisor: :ok
-Alertas.DynamicSupervisor -> Interface.Usuarios: alerta creada
-Interface.Usuarios -> Usuario: alerta creada
+Alertas.DynamicSupervisor -> Alertas.Suscripcion: suscribir usuario
+Alertas.Suscripcion -> Alertas.Registry: crear alerta por origen
+Alertas.Registry -> Alertas.Suscripcion: {:ok, pid}
+Alertas.Suscripcion -> Alerta: suscribir usuario\na la alerta (pid)
 
 @enduml
