@@ -19,6 +19,13 @@ defmodule Aerolinea.Router do
     send_resp(conn, 200, "OK")
   end
 
+  post "/cierre-vuelo/:vuelo_id" do
+    case Vuelos.Registry.find(vuelo_id) do
+      [{pid_vuelo, _}] -> response_encoder(conn, 201, cerrar_vuelo(pid_vuelo))
+      [] -> response_encoder(conn, 404, "No se encontró el vuelo")
+    end
+  end
+
   post "/vuelos" do
     # TODO testear validacion de parametros
 
@@ -30,19 +37,44 @@ defmodule Aerolinea.Router do
 
     {:ok, vuelo_id} = Vuelos.DynamicSupervisor.publicar_vuelo(tipo_avion, datetime, origen, destino, tiempo_limite)
 
-    send_resp(conn, 201, "{\"id\": \"#{vuelo_id}\"}")
+    response_encoder(conn, 201, "{\"id\": \"#{vuelo_id}\"}")
+  end
+
+  get "/vuelos" do
+    response = obtener_datos_todos_los_vuelos()
+
+    response_encoder(conn, 200, response)
   end
 
   get "/vuelos/:vuelo_id" do
     # TODO testear validacion de parametros
     case Vuelos.Registry.find(vuelo_id) do
-      [{pid, _}] -> send_resp(conn, 200, obtener_datos_vuelo(pid))
-      [] -> send_resp(conn, 404, "")
+      [{pid, _}] -> response_encoder(conn, 200, obtener_datos_vuelo(pid))
+      [] -> response_encoder(conn, 404, "")
     end
   end
 
   match _ do
-    send_resp(conn, 404, "Not Found")
+    response_encoder(conn, 404, "Not Found")
+  end
+
+  defp obtener_datos_todos_los_vuelos() do
+    Vuelos.Registry.get_all()
+    |> Enum.map(fn {_id, pid_vuelo} ->
+      GenServer.call(pid_vuelo, :info)
+    end)
+    |> Enum.map(fn vuelo_state ->
+      %{
+        id: vuelo_state.id,
+        tipo_avion: vuelo_state.tipo_avion,
+        fecha_hora_despegue: vuelo_state.fecha_hora_despegue,
+        origen: vuelo_state.origen,
+        destino: vuelo_state.destino,
+        tiempo_oferta: vuelo_state.tiempo_oferta
+      }
+    end)
+    |> Jason.encode()
+    |> elem(1)
   end
 
   defp obtener_datos_vuelo(pid_vuelo) do
@@ -56,7 +88,8 @@ defmodule Aerolinea.Router do
       }
     end)
 
-    vuelo_map_info = %{
+    map = %{
+      id: vuelo_info_struct.id,
       tipo_avion: vuelo_info_struct.tipo_avion,
       fecha_hora_despegue: vuelo_info_struct.fecha_hora_despegue,
       origen: vuelo_info_struct.origen,
@@ -64,8 +97,8 @@ defmodule Aerolinea.Router do
       tiempo_oferta: vuelo_info_struct.tiempo_oferta,
       asientos: asientos
     }
-    
-    Jason.encode(vuelo_map_info) |> elem(1)
+
+    Jason.encode(map) |> elem(1)
   end
 
   defp validar_tipo(tipo) do
@@ -86,4 +119,16 @@ defmodule Aerolinea.Router do
   def handle_errors(conn, %{kind: _kind, reason: _reason, stack: _stack}) do
     send_resp(conn, conn.status, "Something went wrong")
   end
+
+  defp response_encoder(conn, status, json) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(status, json)
+  end
+
+  defp cerrar_vuelo(pid_vuelo) do
+    send(pid_vuelo, :cerrar_vuelo)
+    %{message: "Se cerró el vuelo"} |> Jason.encode() |> elem(1)
+  end
+
 end
