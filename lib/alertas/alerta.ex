@@ -96,8 +96,7 @@ defmodule Alerta do
 
   # Privadas
 
-  defp loggear_suscripcion(usuario_id, alerta_id, :mes)
-       when is_integer(alerta_id) and alerta_id >= 1 and alerta_id <= 12 do
+  defp loggear_suscripcion(usuario_id, alerta_id, :mes) do
     Logger.info(
       "Suscribiendo al usuario #{usuario_id} a la lista de alertas del mes #{alerta_id}"
     )
