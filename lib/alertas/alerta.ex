@@ -4,29 +4,54 @@ defmodule Alerta do
 
   @registry Alertas.Registry
   def start_link({alerta_id, type}) do
-    GenServer.start_link(__MODULE__, {alerta_id, type},
-      name: via_tuple(alerta_id)
-    )
+    GenServer.start_link(__MODULE__, {alerta_id, type, []}, name: via_tuple(alerta_id))
   end
 
   def via_tuple(alerta_id) do
     {:via, Horde.Registry, {@registry, alerta_id}}
   end
 
-  def init({mes, :mes}) do
-    {:ok, {{mes, :mes}, []}}
+  def init({mes, :mes, suscribers}) do
+    Process.flag(:trap_exit, true)
+    {:ok, {{mes, :mes}, suscribers}, {:continue, :load_state}}
   end
 
-  def init({fecha, :fecha}) do
-    {:ok, {{fecha, :fecha}, []}}
+  def init({fecha, :fecha, suscribers}) do
+    Process.flag(:trap_exit, true)
+    {:ok, {{fecha, :fecha}, suscribers}, {:continue, :load_state}}
   end
 
-  def init({origen, :origen}) do
-    {:ok, {{origen, :origen}, []}}
+  def init({origen, :origen, suscribers}) do
+    Process.flag(:trap_exit, true)
+    {:ok, {{origen, :origen}, suscribers}, {:continue, :load_state}}
   end
 
-  def init({destino, :destino}) do
-    {:ok, {{destino, :destino}, []}}
+  def init({destino, :destino, suscribers}) do
+    Process.flag(:trap_exit, true)
+    {:ok, {{destino, :destino}, suscribers}, {:continue, :load_state}}
+  end
+
+  # terminate handle
+  def terminate(_reason, state) do
+    # save state to state manager
+    {alerta_id, suscribers} = state
+    State.Manager.save_state(alerta_id, suscribers)
+  end
+
+  # handle load state
+  def handle_continue(:load_state, arg) do
+    {:noreply, load_state(arg)}
+  end
+
+  def load_state({id_alerta, _suscribers}) do
+    pid = self()
+
+    State.Manager.get_state(id_alerta, 3, [], fn result ->
+      # Se auto envia el resultado
+      Alerta.refresh_state(pid, result)
+    end)
+
+    {id_alerta, []}
   end
 
   # Handles
@@ -35,6 +60,10 @@ defmodule Alerta do
     loggear_suscripcion(usuario_id, alerta_id, type)
 
     {:reply, :ok, {{alerta_id, type}, Enum.uniq([usuario_id | lista])}}
+  end
+
+  def handle_cast({:refresh_state, new_suscribers}, {alerta, lista}) do
+    {:noreply, {alerta, Enum.uniq(Enum.concat(lista, new_suscribers))}}
   end
 
   def handle_cast({:notificar_usuarios, {vuelo_id, dato}}, {{mes, :mes}, lista}) do
@@ -92,6 +121,10 @@ defmodule Alerta do
 
   def notificar_usuarios(pid, vuelo) do
     GenServer.cast(pid, {:notificar_usuarios, vuelo})
+  end
+
+  def refresh_state(pid, new_suscribers) do
+    GenServer.cast(pid, {:refresh_state, new_suscribers})
   end
 
   # Privadas

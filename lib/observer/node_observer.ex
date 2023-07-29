@@ -39,6 +39,9 @@ defmodule NodeObserver do
     set_members(Entidades.Usuario.Registry)
     set_members(Alertas.Registry)
 
+    # Delta CRDT
+    State.Manager.refresh_neighbours()
+
     {:noreply, state}
   end
 
@@ -51,6 +54,7 @@ defmodule NodeObserver do
       %{node_affected: node},
       %{}
     )
+
     # Supervisors
     set_members(Entidades.Usuario.DynamicSupervisor)
     set_members(Alertas.DynamicSupervisor)
@@ -63,10 +67,13 @@ defmodule NodeObserver do
     set_members(Entidades.Usuario.Registry)
     set_members(Alertas.Registry)
 
+    # Delta CRDT
+    State.Manager.refresh_neighbours()
+
     {:noreply, state}
   end
 
-   defp set_members(name) do
+  defp set_members(name) do
     members = Enum.map([Node.self() | Node.list()], &{name, &1})
 
     :ok = Horde.Cluster.set_members(name, members)

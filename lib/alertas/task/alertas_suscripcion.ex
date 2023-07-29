@@ -36,5 +36,4 @@ defmodule Alertas.Suscripcion do
 
     IO.puts("Resultado: #{inspect(pid)}")
   end
-
 end
