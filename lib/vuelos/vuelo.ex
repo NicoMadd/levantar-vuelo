@@ -34,6 +34,7 @@ defmodule Vuelo do
     Notification.Supervisor.notificar(:vuelo, {vuelo_id, info})
 
     vuelo_state = %VueloState{
+      id: vuelo_id,
       asientos: Vuelos.Asientos.Builder.build(tipo_avion),
       origen: origen,
       destino: destino,
