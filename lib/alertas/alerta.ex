@@ -4,35 +4,35 @@ defmodule Alerta do
 
   @registry Alertas.Registry
   def start_link({alerta_id, type}) do
-    GenServer.start_link(__MODULE__, {alerta_id, type}, name: via_tuple(alerta_id))
+    GenServer.start_link(__MODULE__, {alerta_id, type, []}, name: via_tuple(alerta_id))
   end
 
   def via_tuple(alerta_id) do
     {:via, Horde.Registry, {@registry, alerta_id}}
   end
 
-  def init({mes, :mes}) do
+  def init({mes, :mes, suscribers}) do
     Process.flag(:trap_exit, true)
-    {:ok, {{mes, :mes}, []}, {:continue, :load_state}}
+    {:ok, {{mes, :mes}, suscribers}, {:continue, :load_state}}
   end
 
-  def init({fecha, :fecha}) do
-    {:ok, {{fecha, :fecha}, []}}
+  def init({fecha, :fecha, suscribers}) do
+    {:ok, {{fecha, :fecha}, suscribers}, {:continue, :load_state}}
   end
 
-  def init({origen, :origen}) do
-    {:ok, {{origen, :origen}, []}}
+  def init({origen, :origen, suscribers}) do
+    {:ok, {{origen, :origen}, suscribers}, {:continue, :load_state}}
   end
 
-  def init({destino, :destino}) do
-    {:ok, {{destino, :destino}, []}}
+  def init({destino, :destino, suscribers}) do
+    {:ok, {{destino, :destino}, suscribers}, {:continue, :load_state}}
   end
 
   # terminate handle
-  def terminate(reason, state) do
-    # save state to Redis, DeltaCRDT, Postgres, Mysql, etc.
-    IO.puts("terminating alerta")
-    IO.inspect(state)
+  def terminate(_reason, state) do
+    # save state to state manager
+    {alerta_id, suscribers} = state
+    State.Manager.save_state(alerta_id, suscribers)
   end
 
   # handle load state
@@ -40,9 +40,12 @@ defmodule Alerta do
     {:noreply, load_state(arg)}
   end
 
-  def load_state(arg) do
-    IO.puts("Loading state")
-    IO.inspect(arg)
+  def load_state({id_alerta, _suscribers}) do
+    # Espera a que haya consistencia con los CRDTs
+    Process.sleep(650)
+    suscribers = State.Manager.get_state(id_alerta, [])
+
+    {id_alerta, suscribers}
   end
 
   # Handles
