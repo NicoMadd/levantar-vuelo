@@ -1,0 +1,23 @@
+@startuml Secuencia Reserva
+
+actor Usuario
+participant Interface.Usuarios
+participant Vuelos.DynamicSupervisor
+participant Reservas.DynamicSupervisor
+participant Reserva
+participant Reservas.Registry
+
+Vuelos.DynamicSupervisor -> Reservas.DynamicSupervisor: iniciar reserva
+note left: Cuando un vuelo es creado\nse genera el proceso de reserva\nvinculado a dicho vuelo
+Reservas.DynamicSupervisor -> Reserva: iniciar reservas de vuelo
+Reserva -> Reservas.Registry: registrar reserva
+Reserva -> Reservas.DynamicSupervisor: ok
+Reservas.DynamicSupervisor -> Vuelos.DynamicSupervisor: ok
+
+== cuando un usuario quiere realizar una reserva.. == 
+
+Usuario -> Interface.Usuarios: crear reserva
+Interface.Usuarios -> Reserva: crear reserva
+Reserva -> Interface.Usuarios: :ok
+
+@enduml
