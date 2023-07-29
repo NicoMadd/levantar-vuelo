@@ -5,12 +5,12 @@ defmodule Alerta do
   @registry Alertas.Registry
   def start_link({alerta_id, type}) do
     GenServer.start_link(__MODULE__, {alerta_id, type},
-      name: via_tuple(alerta_id)
+      name: via_tuple(alerta_id, type)
     )
   end
 
-  def via_tuple(alerta_id) do
-    {:via, Horde.Registry, {@registry, alerta_id}}
+  def via_tuple(alerta_id, type) do
+    {:via, Horde.Registry, {@registry, {alerta_id, type}}}
   end
 
   def init({mes, :mes}) do
