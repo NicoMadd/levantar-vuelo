@@ -95,14 +95,28 @@ defmodule Usuario.Websocket.Handler do
   end
 
   # asignar asientos
-  # defp handle_message("asignar_asientos", json, usuario_id) do
-  #   asientos = Map.get(json, "asientos")
+  defp handle_message("asignar_asientos", json, usuario_id) do
+    vuelo_id = Map.get(json, "vuelo_id")
+    asientos =
+      Map.get(json, "asientos")
+      |> Enum.map(fn a ->
+        asiento = Map.put_new(%{}, :numero, Map.get(a, "numero"))
+        Map.put_new(asiento, :pasajero, Map.get(a, "pasajero"))
+      end)
 
-  #   case Reservas.Registry.find_reserva_by_vuelo(vuelo_id) do
-  #     [{pid, _}] -> reservar(pid, usuario_id)
-  #     [] -> vuelo_no_encontrado()
-  #   end
-  # end
+    case Reservas.Registry.find_reserva_by_vuelo(vuelo_id) do
+      [{pid, _}] -> asignar_asientos(pid, vuelo_id, usuario_id, asientos)
+      [] -> vuelo_no_encontrado(vuelo_id)
+    end
+
+  end
+
+  defp asignar_asientos(pid_reserva, vuelo_id, usuario_id, asientos_buscados) do
+    case GenServer.call(pid_reserva, {:asignar_asientos, {usuario_id, asientos_buscados}}) do
+      {:ok, _} -> %{message: "Asientos asignados al vuelo #{vuelo_id} por el usuario #{usuario_id}"}
+      {:error, error_msg} -> %{message: "error: #{error_msg}"}
+    end
+  end
 
   # reserva
   defp handle_message("reserva", json, usuario_id) do
