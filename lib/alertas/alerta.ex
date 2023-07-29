@@ -44,11 +44,14 @@ defmodule Alerta do
   end
 
   def load_state({id_alerta, _suscribers}) do
-    # Espera a que haya consistencia con los CRDTs
-    Process.sleep(650)
-    suscribers = State.Manager.get_state(id_alerta, [])
+    pid = self()
 
-    {id_alerta, suscribers}
+    State.Manager.get_state(id_alerta, 3, [], fn result ->
+      # Se auto envia el resultado
+      Alerta.refresh_state(pid, result)
+    end)
+
+    {id_alerta, []}
   end
 
   # Handles
@@ -57,6 +60,10 @@ defmodule Alerta do
     loggear_suscripcion(usuario_id, alerta_id, type)
 
     {:reply, :ok, {{alerta_id, type}, Enum.uniq([usuario_id | lista])}}
+  end
+
+  def handle_cast({:refresh_state, new_suscribers}, {alerta, lista}) do
+    {:noreply, {alerta, Enum.uniq(Enum.concat(lista, new_suscribers))}}
   end
 
   def handle_cast({:notificar_usuarios, {vuelo_id, dato}}, {{mes, :mes}, lista}) do
@@ -114,6 +121,10 @@ defmodule Alerta do
 
   def notificar_usuarios(pid, vuelo) do
     GenServer.cast(pid, {:notificar_usuarios, vuelo})
+  end
+
+  def refresh_state(pid, new_suscribers) do
+    GenServer.cast(pid, {:refresh_state, new_suscribers})
   end
 
   # Privadas

@@ -28,8 +28,8 @@ defmodule State.Manager do
     State.Manager.set_neighbours(Node.self(), neighbours)
   end
 
-  def get_state(key, default \\ nil) do
-    DeltaCrdt.get(Node.self(), key) || default
+  def get_state(key, retries \\ 0, default \\ nil, after_func \\ fn -> nil end) do
+    State.Manager.Task.Supervisor.get_state(key, retries, default, after_func)
   end
 
   def save_state(key, value) do

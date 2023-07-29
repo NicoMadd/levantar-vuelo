@@ -8,14 +8,12 @@ defmodule State.Manager.Task.Supervisor do
     )
   end
 
-  def get_previous_state(alerta_id, wait \\ 0) do
-    Process.sleep(wait)
-
-    Task.Supervisor.async(
+  def get_state(alerta_id, retries \\ 0, default \\ nil, after_func \\ fn -> nil end) do
+    Task.Supervisor.start_child(
       __MODULE__,
       State.Manager.Task,
-      :get_previous_state,
-      [alerta_id],
+      :get_state,
+      [alerta_id, retries, 500, default, after_func],
       restart: :transient
     )
   end
