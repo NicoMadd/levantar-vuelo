@@ -15,7 +15,7 @@ defmodule LevantarVuelo.Application do
       Entidades.Usuario.Supervisor,
 
       ## API ##
-      # API.Supervisor
+      API.Supervisor,
 
       ## Node Observer ##
       NodeObserver.Supervisor,
