@@ -18,4 +18,18 @@ defmodule Usuario.Websocket.Registry do
   def init(_init_arg) do
     {:ok, []}
   end
+
+  def find_usuario_pid(usuario_id) do
+    [{pid, _}] = Registry.lookup(__MODULE__, usuario_id)
+    {:ok, pid}
+  end
+
+  def register(usuario_id) do
+    Registry.register(__MODULE__, usuario_id, {})
+  end
+
+  # def all(function) do
+  #   Registry.dispatch()
+  # end
+
 end
