@@ -37,4 +37,8 @@ defmodule Vuelos.Registry do
       _ -> true
     end
   end
+
+  def get_all() do
+    Horde.Registry.select(__MODULE__, [{{:"$1", :"$2", :"$3"}, [], [{{:"$1", :"$2"}}]}])
+  end
 end
