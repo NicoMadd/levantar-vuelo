@@ -5,8 +5,7 @@ participant Notification.Supervisor
 participant Notification
 participant Reservas.Registry
 participant Reserva
-participant Interface.Usuarios
-actor Usuario
+participant Entidades.Usuario.Registry
 
 Vuelo -> Notification.Supervisor: Notificar cierre de vuelo
 note left: Ya sea por el send_after \no el cierre computado se \nprocede con lo siguiente.
@@ -14,7 +13,8 @@ Notification.Supervisor -> Notification: Notificar cierre
 Notification -> Reservas.Registry: buscar las reservas\nde un vuelo
 Reservas.Registry -> Notification: devolver reservas
 Notification -> Reserva: cerrar reservas
-Reserva -> Interface.Usuarios: notificar cierre de vuelo
-Interface.Usuarios -> Usuario: notificar cierre de vuelo
+Reserva -> Entidades.Usuario.Registry: buscar usuario
+Entidades.Usuario.Registry -> Reserva: devolver usuario
+Reserva -> Entidades.Usuario: cerrar reserva\nde usuario
 
 @enduml
