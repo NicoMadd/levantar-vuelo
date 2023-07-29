@@ -1,8 +1,9 @@
 defmodule Usuario.Websocket.Registry do
+  use Horde.Registry
   require Logger
 
   def start_link(_init) do
-    Registry.start_link(keys: :unique, name: __MODULE__)
+    Horde.Registry.start_link(keys: :unique, name: __MODULE__)
   end
 
   def child_spec(opts) do
@@ -20,12 +21,14 @@ defmodule Usuario.Websocket.Registry do
   end
 
   def find_usuario_pid(usuario_id) do
-    [{pid, _}] = Registry.lookup(__MODULE__, usuario_id)
-    {:ok, pid}
+    case Horde.Registry.lookup(__MODULE__, usuario_id) do
+      [{pid, _}] -> {:ok, pid}
+      [] -> {:error, "usuario not found"}
+    end
   end
 
   def register(usuario_id) do
-    Registry.register(__MODULE__, usuario_id, {})
+    Horde.Registry.register(__MODULE__, usuario_id, {})
   end
 
   # def all(function) do
