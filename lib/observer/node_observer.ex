@@ -39,6 +39,9 @@ defmodule NodeObserver do
     set_members(Entidades.Usuario.Registry)
     set_members(Alertas.Registry)
 
+    # Delta CRDT
+    State.Manager.refresh_neighbours()
+
     {:noreply, state}
   end
 
