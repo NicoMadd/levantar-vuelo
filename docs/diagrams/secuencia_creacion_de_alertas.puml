@@ -1,0 +1,47 @@
+@startuml Secuencia Creacion de alertas
+
+actor Usuario
+participant Interface.Usuarios
+participant Alertas.DynamicSupervisor
+participant Alertas.Suscripcion
+participant Alertas.Registry
+participant Alerta
+
+== Alerta por mes == 
+
+Usuario -> Interface.Usuarios: crear alerta
+Interface.Usuarios -> Alertas.DynamicSupervisor: crear alerta por mes
+Alertas.DynamicSupervisor -> Alertas.Suscripcion: suscribir usuario
+Alertas.Suscripcion -> Alertas.Registry: crear alerta por mes
+Alertas.Registry -> Alertas.Suscripcion: {:ok, pid}
+Alertas.Suscripcion -> Alerta: suscribir usuario\na la alerta (pid)
+
+== Alerta por fecha == 
+
+Usuario -> Interface.Usuarios: crear alerta
+Interface.Usuarios -> Alertas.DynamicSupervisor: crear alerta por fecha
+Alertas.DynamicSupervisor -> Alertas.Suscripcion: suscribir usuario
+Alertas.Suscripcion -> Alertas.Registry: crear alerta por fecha
+Alertas.Registry -> Alertas.Suscripcion: {:ok, pid}
+Alertas.Suscripcion -> Alerta: suscribir usuario\na la alerta (pid)
+
+
+== Alerta por destino == 
+
+Usuario -> Interface.Usuarios: crear alerta
+Interface.Usuarios -> Alertas.DynamicSupervisor: crear alerta por destino
+Alertas.DynamicSupervisor -> Alertas.Suscripcion: suscribir usuario
+Alertas.Suscripcion -> Alertas.Registry: crear alerta por destino
+Alertas.Registry -> Alertas.Suscripcion: {:ok, pid}
+Alertas.Suscripcion -> Alerta: suscribir usuario\na la alerta (pid)
+
+== Alerta por origen == 
+
+Usuario -> Interface.Usuarios: crear alerta
+Interface.Usuarios -> Alertas.DynamicSupervisor: crear alerta por origen
+Alertas.DynamicSupervisor -> Alertas.Suscripcion: suscribir usuario
+Alertas.Suscripcion -> Alertas.Registry: crear alerta por origen
+Alertas.Registry -> Alertas.Suscripcion: {:ok, pid}
+Alertas.Suscripcion -> Alerta: suscribir usuario\na la alerta (pid)
+
+@enduml
