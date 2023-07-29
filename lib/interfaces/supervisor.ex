@@ -22,8 +22,8 @@ defmodule API.Supervisor do
     Supervisor.init(children, opts)
   end
 
-  defp cowboy_rest_port, do: 5000
-  defp cowboy_ws_port, do: 4000
+  defp cowboy_rest_port, do: get_free_port(5000)
+  defp cowboy_ws_port, do: get_free_port(4000)
 
   defp dispatch do
     [
@@ -34,4 +34,16 @@ defmodule API.Supervisor do
        ]}
     ]
   end
+
+  defp get_free_port(start) do
+    case :gen_tcp.listen(start, [:binary]) do
+      {:ok, socket} ->
+        :ok = :gen_tcp.close(socket)
+        start
+
+      {:error, :eaddrinuse} ->
+        get_free_port(start + 1)
+    end
+  end
+
 end

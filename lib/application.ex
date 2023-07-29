@@ -16,7 +16,7 @@ defmodule LevantarVuelo.Application do
       State.Manager.Supervisor,
 
       ## API ##
-      # API.Supervisor
+      API.Supervisor,
 
       ## Node Observer ##
       NodeObserver.Supervisor

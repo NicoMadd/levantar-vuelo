@@ -4,11 +4,11 @@ defmodule Alerta do
 
   @registry Alertas.Registry
   def start_link({alerta_id, type}) do
-    GenServer.start_link(__MODULE__, {alerta_id, type, []}, name: via_tuple(alerta_id))
+    GenServer.start_link(__MODULE__, {alerta_id, type}, name: via_tuple(alerta_id, type))
   end
 
-  def via_tuple(alerta_id) do
-    {:via, Horde.Registry, {@registry, alerta_id}}
+  def via_tuple(alerta_id, type) do
+    {:via, Horde.Registry, {@registry, {alerta_id, type}}}
   end
 
   def init({mes, :mes, suscribers}) do
@@ -66,48 +66,13 @@ defmodule Alerta do
     {:noreply, {alerta, Enum.uniq(Enum.concat(lista, new_suscribers))}}
   end
 
-  def handle_cast({:notificar_usuarios, {vuelo_id, dato}}, {{mes, :mes}, lista}) do
-    if dato == mes do
-      lista
-      |> Enum.each(fn e ->
-        IO.puts("Notificando usuario #{e} de un nuevo vuelo #{vuelo_id} en el mes #{mes}")
-      end)
+  def handle_cast({:notificar_usuarios, {vuelo_id, _dato}}, {alerta, lista_usuarios}) do
+    for usuario <- lista_usuarios do
+      [{pid, _}] = Entidades.Usuario.Registry.find(usuario)
+      GenServer.cast(pid, {:nuevo_vuelo, vuelo_id, alerta})
     end
 
-    {:noreply, {{mes, :mes}, lista}}
-  end
-
-  def handle_cast({:notificar_usuarios, {vuelo_id, dato}}, {{fecha, :fecha}, lista}) do
-    if dato == fecha do
-      lista
-      |> Enum.each(fn e ->
-        IO.puts("Notificando usuario #{e} de un nuevo vuelo #{vuelo_id} en la fecha #{fecha}")
-      end)
-    end
-
-    {:noreply, {{fecha, :fecha}, lista}}
-  end
-
-  def handle_cast({:notificar_usuarios, {vuelo_id, dato}}, {{destino, :destino}, lista}) do
-    if dato == destino do
-      lista
-      |> Enum.each(fn e ->
-        IO.puts("Notificando usuario #{e} de un nuevo vuelo #{vuelo_id} en el destino #{destino}")
-      end)
-    end
-
-    {:noreply, {{destino, :destino}, lista}}
-  end
-
-  def handle_cast({:notificar_usuarios, {vuelo_id, dato}}, {{origen, :origen}, lista}) do
-    if dato == origen do
-      lista
-      |> Enum.each(fn e ->
-        IO.puts("Notificando usuario #{e} de un nuevo vuelo #{vuelo_id} en el origen #{origen}")
-      end)
-    end
-
-    {:noreply, {{origen, :origen}, lista}}
+    {:noreply, {alerta, lista_usuarios}}
   end
 
   # Funciones definidas para el cliente
@@ -129,8 +94,7 @@ defmodule Alerta do
 
   # Privadas
 
-  defp loggear_suscripcion(usuario_id, alerta_id, :mes)
-       when is_integer(alerta_id) and alerta_id >= 1 and alerta_id <= 12 do
+  defp loggear_suscripcion(usuario_id, alerta_id, :mes) do
     Logger.info(
       "Suscribiendo al usuario #{usuario_id} a la lista de alertas del mes #{alerta_id}"
     )

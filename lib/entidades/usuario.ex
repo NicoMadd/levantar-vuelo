@@ -29,8 +29,26 @@ defmodule Entidades.Usuario do
   end
 
   def handle_cast({:cierre_reserva, vuelo_id}, {usuario_id, nombre}) do
-    Logger.info("Notificando usuario #{usuario_id} del cierre del vuelo #{vuelo_id}.")
+    info = "Notificando usuario #{usuario_id} del cierre del vuelo #{vuelo_id}."
+    Logger.info(info)
+
+    Usuario.Websocket.Handler.notificar(info, usuario_id)
 
     {:noreply, {usuario_id, nombre}}
   end
+
+  def handle_cast({:nuevo_vuelo, vuelo_id, alerta}, {usuario_id, nombre}) do
+    info = "#{alerta_to_string(alerta)} Notificando usuario #{usuario_id} nuevo vuelo #{vuelo_id}."
+    Logger.info(info)
+
+    Usuario.Websocket.Handler.notificar(info, usuario_id)
+
+    {:noreply, {usuario_id, nombre}}
+  end
+
+  defp alerta_to_string({origen, :origen}), do: "Alerta por origen - #{origen}."
+  defp alerta_to_string({destino, :destino}), do: "Alerta por destino - #{destino}."
+  defp alerta_to_string({mes, :mes}), do: "Alerta por mes - #{mes}."
+  defp alerta_to_string({fecha, :fecha}), do: "Alerta por fecha - #{fecha}."
+
 end

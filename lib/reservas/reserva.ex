@@ -41,19 +41,21 @@ defmodule Reserva do
   end
 
 
-  def handle_call({:asignar_asientos, {usuario_id, asientos_buscados}}, _from, {vuelo_id, usuario_id}) do
+  def handle_call({:asignar_asientos, {usuario_id, asientos_buscados}}, _from, {vuelo_id, lista_usuarios}) do
     [{pid, _}] = Vuelos.Registry.find(vuelo_id)
+
+    lista_sin_usuario_reserva = Enum.filter(lista_usuarios, fn id -> id != usuario_id end)
 
     case GenServer.call(pid, {:asignar_asiento, asientos_buscados}) do
       {:ok, _} ->
-        {:reply, {:ok, ""}, {vuelo_id, usuario_id}}
+        {:reply, {:ok, ""}, {vuelo_id, lista_sin_usuario_reserva}}
       {:error, error_msg} ->
-        {:reply, {:error, error_msg}, {vuelo_id, usuario_id}}
+        {:reply, {:error, error_msg}, {vuelo_id, lista_usuarios}}
     end
   end
 
   def handle_info(:cerrar_reservas, {vuelo_id, lista_usuarios}) do
-    # Logger.info("Notificando usuario #{usuario_id} del cierre del vuelo #{vuelo_id}.")
+    Logger.info("Notificando usuarios: #{inspect(lista_usuarios)} del cierre del vuelo #{vuelo_id}.")
     # restaría notificar a los usuarios mediante
 
     for usuario <- lista_usuarios do
