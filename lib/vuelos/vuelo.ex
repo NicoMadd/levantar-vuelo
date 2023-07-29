@@ -5,9 +5,7 @@ defmodule Vuelo do
   @registry Vuelos.Registry
 
   def start_link(vuelo_id, info) do
-    GenServer.start_link(__MODULE__, {vuelo_id, info},
-      name: via_tuple(vuelo_id)
-    )
+    GenServer.start_link(__MODULE__, {vuelo_id, info}, name: via_tuple(vuelo_id))
   end
 
   def via_tuple(vuelo_id) do
@@ -34,7 +32,6 @@ defmodule Vuelo do
     Notification.Supervisor.notificar(:vuelo, {vuelo_id, info})
 
     vuelo_state = %VueloState{
-      asientos: Vuelos.Asientos.Builder.build(tipo_avion),
       origen: origen,
       destino: destino,
       fecha_hora_despegue: datetime,
@@ -42,31 +39,33 @@ defmodule Vuelo do
       tiempo_oferta: tiempo_limite
     }
 
-    {:ok, {vuelo_id, vuelo_state}}
+    asientos = Vuelos.Asientos.Builder.build(tipo_avion)
+
+    {:ok, {vuelo_id, vuelo_state, asientos}}
   end
 
   # Handles
 
-  def handle_info(:cerrar_vuelo, {vuelo_id, vuelo_state}) do
+  def handle_info(:cerrar_vuelo, {vuelo_id, vuelo_state, asientos}) do
     Logger.info("Vuelo #{vuelo_id} cerrandose")
 
     Notification.Supervisor.notificar(:cierre, {vuelo_id})
 
-    {:stop, :normal, {vuelo_id, vuelo_state}}
+    {:stop, :normal, {vuelo_id, vuelo_state, asientos}}
   end
 
   def handle_call(:info, _from, {v, info}) do
     {:reply, info, {v, info}}
   end
 
-  def handle_call({:asignar_asiento, asientos_buscados}, _, {vuelo_id, vuelo_state}) do
-    case validar_asientos_buscados(vuelo_state.asientos, asientos_buscados) do
+  def handle_call({:asignar_asiento, asientos_buscados}, _, {vuelo_id, vuelo_state, asientos}) do
+    case validar_asientos_buscados(asientos, asientos_buscados) do
       {:ok, _msg} ->
         {:reply, {:ok, "asientos asignados"},
-         {vuelo_id, asignar_asientos(vuelo_state, asientos_buscados)}}
+         {vuelo_id, vuelo_state, asignar_asientos(asientos, asientos_buscados)}}
 
       {:error, error_msg} ->
-        {:reply, {:error, error_msg}, {vuelo_id, vuelo_state}}
+        {:reply, {:error, error_msg}, {vuelo_id, vuelo_state, asientos}}
     end
   end
 
@@ -87,16 +86,16 @@ defmodule Vuelo do
   # Private functions
 
   # asigna los asientos independientemente que esten ocupados o no. validar que los asientos esten libres antes de llamar a esta funcion
-  defp asignar_asientos(vuelo_state, asientos_buscados) do
+  defp asignar_asientos(asientos, asientos_buscados) do
     lista_asientos_actualizada =
-      Enum.map(vuelo_state.asientos, fn asiento_vuelo ->
+      Enum.map(asientos, fn asiento_vuelo ->
         case Enum.find(asientos_buscados, &(&1.numero == asiento_vuelo.numero)) do
           %{pasajero: pasajero} -> %{asiento_vuelo | disponible?: false, pasajero: pasajero}
           _ -> asiento_vuelo
         end
       end)
 
-    %{vuelo_state | asientos: lista_asientos_actualizada}
+    %{asientos | asientos: lista_asientos_actualizada}
   end
 
   # aplica validaciones sobre asientos
