@@ -10,6 +10,10 @@ defmodule State.Manager.Supervisor do
       %{
         id: State.Manager,
         start: {State.Manager, :start_link, [{}]}
+      },
+      %{
+        id: State.Manager.Task.Supervisor,
+        start: {State.Manager.Task.Supervisor, :start_link, [[]]}
       }
     ]
 
