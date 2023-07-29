@@ -35,10 +35,10 @@ defmodule Reservas.Registry do
     Horde.Registry.lookup(__MODULE__, vuelo_id)
   end
 
-  def cerrar_reservas(vuelo_id) do
-    Horde.Registry.dispatch(Reservas.Registry, vuelo_id, fn entries ->
-      for {pid, _} <- entries, do: Reserva.cerrar(pid)
-    end)
-  end
+  # def cerrar_reservas(vuelo_id) do
+  #   Horde.Registry.dispatch(Reservas.Registry, vuelo_id, fn entries ->
+  #     for {pid, _} <- entries, do: send(pid, :cerrar_reserva)
+  #   end)
+  # end
 
 end
