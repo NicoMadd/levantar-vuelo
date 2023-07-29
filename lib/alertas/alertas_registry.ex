@@ -35,4 +35,12 @@ defmodule Alertas.Registry do
     end
   end
 
+  def find_alerta(alerta_id, type) do
+
+    case Horde.Registry.lookup(__MODULE__, {alerta_id, type}) do
+      [{pid, _}] -> {:ok, pid}
+      [] -> {:error, "not found"}
+    end
+  end
+
 end
