@@ -17,14 +17,17 @@ defmodule Alerta do
   end
 
   def init({fecha, :fecha, suscribers}) do
+    Process.flag(:trap_exit, true)
     {:ok, {{fecha, :fecha}, suscribers}, {:continue, :load_state}}
   end
 
   def init({origen, :origen, suscribers}) do
+    Process.flag(:trap_exit, true)
     {:ok, {{origen, :origen}, suscribers}, {:continue, :load_state}}
   end
 
   def init({destino, :destino, suscribers}) do
+    Process.flag(:trap_exit, true)
     {:ok, {{destino, :destino}, suscribers}, {:continue, :load_state}}
   end
 
