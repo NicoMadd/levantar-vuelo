@@ -21,7 +21,7 @@ defmodule Vuelos.DynamicSupervisor do
   end
 
   def start_child({tipo_avion, datetime, origen, destino, tiempo_limite}) do
-    vuelo_id = App.Utils.generate_id()
+    vuelo_id = App.Utils.random_string(10)
 
     spec = {Vuelo, {vuelo_id, {tipo_avion, datetime, origen, destino, tiempo_limite}}}
 
