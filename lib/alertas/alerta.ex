@@ -11,24 +11,24 @@ defmodule Alerta do
     {:via, Horde.Registry, {@registry, {alerta_id, type}}}
   end
 
-  def init({mes, :mes, suscribers}) do
+  def init({mes, :mes}) do
     Process.flag(:trap_exit, true)
-    {:ok, {{mes, :mes}, suscribers}, {:continue, :load_state}}
+    {:ok, {{mes, :mes}, []}, {:continue, :load_state}}
   end
 
-  def init({fecha, :fecha, suscribers}) do
+  def init({fecha, :fecha}) do
     Process.flag(:trap_exit, true)
-    {:ok, {{fecha, :fecha}, suscribers}, {:continue, :load_state}}
+    {:ok, {{fecha, :fecha}, []}, {:continue, :load_state}}
   end
 
-  def init({origen, :origen, suscribers}) do
+  def init({origen, :origen}) do
     Process.flag(:trap_exit, true)
-    {:ok, {{origen, :origen}, suscribers}, {:continue, :load_state}}
+    {:ok, {{origen, :origen}, []}, {:continue, :load_state}}
   end
 
-  def init({destino, :destino, suscribers}) do
+  def init({destino, :destino}) do
     Process.flag(:trap_exit, true)
-    {:ok, {{destino, :destino}, suscribers}, {:continue, :load_state}}
+    {:ok, {{destino, :destino}, []}, {:continue, :load_state}}
   end
 
   # terminate handle

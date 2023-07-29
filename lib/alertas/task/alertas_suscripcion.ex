@@ -4,36 +4,48 @@ defmodule Alertas.Suscripcion do
   def suscribir(usuario_id, {mes, :mes}) do
     IO.puts("suscribiendo en task #{usuario_id} para alerta mes: #{mes}")
 
-    {:ok, pid} = Alertas.Registry.crear_alerta(mes, :mes)
-    Alerta.suscribir(pid, usuario_id)
+    case Alertas.Registry.crear_alerta(mes, :mes) do
+      {:ok, pid} ->
+        Alerta.suscribir(pid, usuario_id)
 
-    IO.puts("Resultado: #{inspect(pid)}")
+      {:error, msg} ->
+        IO.puts(msg)
+    end
   end
 
   def suscribir(usuario_id, {fecha, :fecha}) do
-    IO.puts("suscribiendo en task #{usuario_id} para alerta fecha: #{fecha}")
+    IO.puts("suscribiendo en task #{usuario_id} para alerta fecha: #{inspect(fecha)}")
 
-    {:ok, pid} = Alertas.Registry.crear_alerta(fecha, :fecha)
-    Alerta.suscribir(pid, usuario_id)
+    case Alertas.Registry.crear_alerta(fecha, :fecha) do
+      {:ok, pid} ->
+        Alerta.suscribir(pid, usuario_id)
 
-    IO.puts("Resultado: #{inspect(pid)}")
+      {:error, msg} ->
+        IO.inspect(msg)
+    end
   end
 
   def suscribir(usuario_id, {origen, :origen}) do
     IO.puts("suscribiendo en task #{usuario_id} para alerta origen: #{origen}")
 
-    {:ok, pid} = Alertas.Registry.crear_alerta(origen, :origen)
-    Alerta.suscribir(pid, usuario_id)
+    case Alertas.Registry.crear_alerta(origen, :origen) do
+      {:ok, pid} ->
+        Alerta.suscribir(pid, usuario_id)
 
-    IO.puts("Resultado: #{inspect(pid)}")
+      {:error, msg} ->
+        IO.inspect(msg)
+    end
   end
 
   def suscribir(usuario_id, {destino, :destino}) do
     IO.puts("suscribiendo en task #{usuario_id} para alerta destino: #{destino}")
 
-    {:ok, pid} = Alertas.Registry.crear_alerta(destino, :destino)
-    Alerta.suscribir(pid, usuario_id)
+    case Alertas.Registry.crear_alerta(destino, :destino) do
+      {:ok, pid} ->
+        Alerta.suscribir(pid, usuario_id)
 
-    IO.puts("Resultado: #{inspect(pid)}")
+      {:error, msg} ->
+        IO.inspect(msg)
+    end
   end
 end

@@ -31,7 +31,7 @@ defmodule Alertas.Registry do
     case Alertas.DynamicSupervisor.start_child(alerta_id, type) do
       {:ok, pid} -> {:ok, pid}
       {:error, {:already_started, pid}} -> {:ok, pid}
-      {:error, msg} -> {:error, "An error occurred: #{msg}"}
+      {:error, msg} -> {:error, "An error occurred: #{inspect(msg)}"}
     end
   end
 
