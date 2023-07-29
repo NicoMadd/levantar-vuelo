@@ -1,4 +1,4 @@
-@startuml Secuencia Publicar Vuelo 
+@startuml Secuencia Publicar Vuelo
 actor Aerolinea
 participant Interface.Aerolinea
 participant Vuelos.DynamicSupervisor
@@ -16,9 +16,6 @@ Aerolinea -> "Interface.Aerolinea": Publicar vuelo
 Vuelos.DynamicSupervisor -> Vuelo: Crear vuelo
 Vuelos.DynamicSupervisor -> Reservas.DynamicSupervisor: permitir reservas\nasociadas al vuelo
 Vuelo -> Vuelo: send_after()
-Vuelo -> Vuelos.DynamicSupervisor: ok
-Vuelos.DynamicSupervisor -> Interface.Aerolinea: ok
-Interface.Aerolinea -> Aerolinea: ok
 Vuelo -> Notification.Supervisor: notificar vuelo
 Notification.Supervisor -> Notification: notificar vuelo
 Notification -> Alertas.Registry: fetch alertas interesados
@@ -31,4 +28,3 @@ deactivate Alerta
 Interface.Usuario -> Usuario: notificar vuelo
 
 @enduml
-
