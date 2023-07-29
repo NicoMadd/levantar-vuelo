@@ -1,9 +1,8 @@
 defmodule State.Manager do
   def start_link(_) do
-    DeltaCrdt.start_link(DeltaCrdt.AWLWWMap, name: Node.self(), sync_interval: 3)
-  end
-
-  def get_crtd() do
+    response = DeltaCrdt.start_link(DeltaCrdt.AWLWWMap, name: Node.self(), sync_interval: 20)
+    State.Manager.refresh_neighbours()
+    response
   end
 
   @doc """
@@ -29,8 +28,20 @@ defmodule State.Manager do
     State.Manager.set_neighbours(Node.self(), neighbours)
   end
 
+  def get_state(key, default \\ nil) do
+    DeltaCrdt.get(Node.self(), key) || default
+  end
+
+  def save_state(key, value) do
+    State.Manager.save_state(Node.self(), key, value)
+  end
+
   def save_state(crdt, key, value) do
     DeltaCrdt.put(crdt, key, value)
+  end
+
+  def delete_state(key) do
+    State.Manager.delete_state(Node.self(), key)
   end
 
   def delete_state(crdt, key) do
