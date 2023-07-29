@@ -29,7 +29,10 @@ defmodule Entidades.Usuario do
   end
 
   def handle_cast({:cierre_reserva, vuelo_id}, {usuario_id, nombre}) do
-    Logger.info("Notificando usuario #{usuario_id} del cierre del vuelo #{vuelo_id}.")
+    info = "Notificando usuario #{usuario_id} del cierre del vuelo #{vuelo_id}."
+    Logger.info(info)
+
+    Usuario.Websocket.Handler.notificar(info, usuario_id)
 
     {:noreply, {usuario_id, nombre}}
   end
