@@ -64,8 +64,11 @@ defmodule Usuario.Websocket.Handler do
   # end
 
   def notificar(mensaje, id_usuario) do
-    {:ok, pid} = WsRegistry.find_usuario_pid(id_usuario)
-    send(pid, {:broadcast, mensaje})
+    case WsRegistry.find_usuario_pid(id_usuario) do
+      {:ok, pid} -> send(pid, {:broadcast, mensaje})
+      {:error, _} -> {}
+    end
+
   end
 
   def cantidad() do
