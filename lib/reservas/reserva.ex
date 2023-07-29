@@ -55,7 +55,7 @@ defmodule Reserva do
   end
 
   def handle_info(:cerrar_reservas, {vuelo_id, lista_usuarios}) do
-    # Logger.info("Notificando usuario #{usuario_id} del cierre del vuelo #{vuelo_id}.")
+    Logger.info("Notificando usuarios: #{inspect(lista_usuarios)} del cierre del vuelo #{vuelo_id}.")
     # restaría notificar a los usuarios mediante
 
     for usuario <- lista_usuarios do
